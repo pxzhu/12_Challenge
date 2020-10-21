@@ -116,3 +116,59 @@ $ sudo git add *
 $ sudo git commit -m "devise 젬과 User 모델 추가"
 $ sudo git push
 ```
+>app/views/layouts/application.html.erb 파일에서 로그인 여부에 따라 다른 링크를 제공하는 조건문을 추가합니다.
+```
+<% if user_signed_in? %>
+  <ul>
+    <li><%= link_to 'Submit link', new_link_path %></li>
+    <li><%= link_to 'Account', edit_user_registration_path %></li>
+    <li><%= link_to 'Sign out', destroy_user_session_path, :method => :delete %></li>
+  </ul>
+<% else %>
+  <ul>
+    <li><%= link_to 'Sign up', new_user_registration_path %></li>
+    <li><%= link_to 'Sign in', new_user_session_path %></li>
+  </ul>
+<% end%>
+```
+>잘 동작하는지 확인하기 위해 서버를 실행합니다. 로그인과 로그아웃 모두 동작하는지 확인합니다.
+``` terminal
+$ sudo rails server
+```
+>등록되지 않은 사용자가 링크를 추가할 수 없도록 app/models/user.rb에 다음 코드를 추가합니다.
+``` ruby
+has_many :link
+```
+>app/models/link.rb에 연결을 추가합니다.
+``` ruby
+belongs_to :user
+```
+>검사를 위해 레일즈 콘솔로 이동합니다.
+``` terminal
+$ sudo rails c
+```
+>첫 번째 링크가 무엇인지 출력합니다.
+``` terminal
+$ @link = Link.first
+  => title: "pxzhu's Github Reddit Clone", url: "https://github.com/pxzhu/12_Challenge/tree/main/re..."
+```
+>다음과 같이 콘솔에 작성하면 nil을 반환한다.    
+>User와 link 간의 연결이 없었으면 쿼리에 대한 오류 메시지가 표시되었을것이다.    
+>nil은 오류가 아니다.    
+>사용자 column을 데이터베이스에 추가하지 않았기 때문이다.
+``` terminal
+$ @link.user
+  => nil
+```
+>link 데이터베이스에 User를 추가하기 위해 마이그레이션을 합니다.
+``` terminal
+$ sudo rails generate migration add_user_id_to_links user_id:integer:index
+$ sudo rake db:migrate
+```
+>추가한 것을 확인합니다.
+``` terminal
+$ sudo rails c
+$ Link.connection
+$ Link
+  => Link(id: integer, title: string, url: string, created_at: datetime, updated_at: datetime, user_id: integer)
+```
