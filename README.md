@@ -19,10 +19,6 @@ $ sudo rails server
 $ ^C
 ```
 - 2020-10-21
->.git이 존재하는 폴더로 이동하여 새 브랜치를 생성합니다..
-``` terminal
-$ git checkout -b link_scaffold
-```
 >link 스캐폴드를 생성합니다.
 ``` terminal
 $ sudo rails generate scaffold link title:string url:string
@@ -48,7 +44,5 @@ $ ^C
 ``` terminal
 $ sudo git add *
 $ sudo git commit -m "link 스캐폴드 생성"
-$ sudo git checkout main
-$ sudo git merge link_scaffold
 $ sudo git push
 ```
