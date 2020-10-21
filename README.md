@@ -105,7 +105,7 @@ $ @user = User.first
 $ ^D
 ```
 >app/views/layouts/application.html.erb 파일에서 로그인 여부에 따라 다른 링크를 제공하는 조건문을 추가합니다.
-```
+``` r
 <% if user_signed_in? %>
   <ul>
     <li><%= link_to 'Submit link', new_link_path %></li>
@@ -159,4 +159,77 @@ $ sudo rails c
 $ Link.connection
 $ Link
   => Link(id: integer, title: string, url: string, created_at: datetime, updated_at: datetime, user_id: integer)
+```
+>User가 링크를 생성할 때 User id가 해당 링크에 할당되도록 링크 컨트롤러를 업데이트합니다.    
+>app/controller/links_controller.rb 안에 메소드를 수정합니다.    
+>영상에는 'current_user.links.build'라고 적혀있지만 오류가 발생하여 'current_user.link.build'로 수정하였다.
+``` ruby
+# before
+def new
+  @link = Link.new
+end
+#-------------중략-------------#
+def create
+  @link = Link.new(link_params)
+#-----------이하 생략-----------#
+# after
+def new
+  @link = current_user.link.build
+end
+#-------------중략-------------#
+def create
+  @link = current_user.link.build(link_params)
+#-----------이하 생략-----------#
+```
+>작업이 잘 동작하는지 확인합니다.    
+>link를 마지막으로 작성한 user id는 1입니다.    
+>user id가 1인 사람을 확인합니다.
+``` terminal
+$ sudo rails c
+@link = Link.last
+  => Link id: 3, title: "Devise Gem", url: "https://rubygems.org/gems/devise", created_at: "2020-10-21 12:11:49", updated_at: "2020-10-21 12:11:49", user_id: 1
+@link.user
+  => User id: 1, email: "test@email.com", created_at: "2020-10-21 09:10:45", updated_at: "2020-10-21 09:10:45"
+```
+>몇 가지 인증을 추가하여 비인증자를 필터링합니다.    
+>links_controller.rb에 before_action을 추가합니다.    
+``` ruby
+before_action :authenticate_user!, except: [:index, :show]
+```
+>Edit과 Destroy는 로그인을 하지 않으면 동작하지 않는것을 볼 수 있습니다.    
+>하지만 다른 사용자가 로그인을 하면 Edit과 Destroy가 동작합니다.
+>사용자가 로그인하지 않은 경우 Edit의 경로를 볼 수 없도록 app/views/links/index.html.erb를 수정합니다.
+``` r
+# before
+#-------------생략-------------#
+<td><%= link_to 'Show', link %></td>
+<td><%= link_to 'Edit', edit_link_path(link) %></td>
+<td><%= link_to 'Destroy', link, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+#-----------이하 생략-----------#
+# after
+#-------------생략-------------#
+<td><%= link_to 'Show', link %></td>
+<% if link.user == current_user %>
+  <td><%= link_to 'Edit', edit_link_path(link) %></td>
+  <td><%= link_to 'Destroy', link, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+<% end %>
+#-----------이하 생략-----------#
+```
+>레일즈 콘솔을 통하여 링크의 생성 User를 알 수 있다.    
+>세 번째 링크 생성 User를 1로 바꾸어보자.
+``` terminal
+$ sudo rails c
+$ @link = Link.third
+  => Link id: 4, title: "Ruby on Rails", url: "https://rubyonrails.org", created_at: "2020-10-21 12:54:54", updated_at: "2020-10-21 12:54:54", user_id: 2
+$ @link.user = User.first
+  => User id: 1, email: "test@email.com", created_at: "2020-10-21 09:10:45", updated_at: "2020-10-21 09:10:45"
+$ @link.save
+$ @link = Link.third
+  => Link id: 4, title: "Ruby on Rails", url: "https://rubyonrails.org", created_at: "2020-10-21 12:54:54", updated_at: "2020-10-21 12:57:48", user_id: 1
+```
+>세 번째 링크 소유자가 1로 바뀐 것을 확인할 수 있다.    
+>레일즈 서버를 이용해서 user_id: 2로 로그인 한 뒤에 수정이 가능한지 확인해보자.
+>app/views/links/index.html.erb 하단에서 다음 코드를 삭제합니다.
+``` r
+<%= link_to 'New Link', new_link_path %>
 ```
