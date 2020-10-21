@@ -40,12 +40,6 @@ http://localhost:3000/links
 ``` terminal
 $ ^C
 ```
->변경 사항을 커밋합니다.
-``` terminal
-$ sudo git add *
-$ sudo git commit -m "link 스캐폴드 생성"
-$ sudo git push
-```
 >Gemfile에 다음 항목을 추가하고 저장합니다.
 ``` gemfile
 gem 'devise'
@@ -109,12 +103,6 @@ $ User.count
 $ @user = User.first
   => email: "test@email.com"
 $ ^D
-```
->변경 사항을 커밋합니다.
-``` terminal
-$ sudo git add *
-$ sudo git commit -m "devise 젬과 User 모델 추가"
-$ sudo git push
 ```
 >app/views/layouts/application.html.erb 파일에서 로그인 여부에 따라 다른 링크를 제공하는 조건문을 추가합니다.
 ```
