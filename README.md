@@ -48,7 +48,7 @@ $ ^C
 ``` terminal
 $ sudo git add *
 $ sudo git commit -m "link 스캐폴드 생성"
-$ sudo git checkout master
+$ sudo git checkout main
 $ sudo git merge link_scaffold
 $ sudo git push
 ```
