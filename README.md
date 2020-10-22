@@ -294,9 +294,9 @@ sudo bundle install
   </div>
 <% end %>
 ```
->추가를 하고 잘 적용이 되었는지 링크를 클릭하여 확인해봅니다.
+>추가를 하고 잘 적용이 되었는지 링크를 클릭하여 확인해봅니다.    
 >잘 동작하는 것을 확인했으면 app/views/links/_form.html.erb의 내용을 수정합니다.
-``` r
+``` erb
 # before
 <div class="field">
   <%= form.label :title %>
@@ -326,7 +326,7 @@ sudo bundle install
   <%= form.submit "Submit", class: "btn btn-kg btn-primary" %>
 </div>
 ```
->Submit link가 잘 동작하는지 확인합니다.
+>Submit link가 잘 동작하는지 확인합니다.    
 >app/views/devise/registrations/edit.html.erb를 수정합니다.
 ``` erb
 # before
@@ -447,7 +447,7 @@ sudo bundle install
   <%= f.submit "Sign up", class: "btn btn-lg btn primary" %>
 </div>
 ```
->계정 생성 페이지가 잘 동작하는지 확인합니다.
+>계정 생성 페이지가 잘 동작하는지 확인합니다.    
 >잘 동작한다면 app/views/devise/sessions/new.html.erb를 다음과 같이 수정합니다.
 ``` erb
 # before
@@ -490,5 +490,97 @@ sudo bundle install
 
 <div class="form=group">
   <%= f.submit "Log in", class: "btn btn-primary" %>
+</div>
+```
+>투표 시스템을 만들기 위해 Gemfile을 수정하고 설치해줍니다.
+``` gemfile
+gem 'acts_as_votable', '~> 0.12.1'
+```
+``` terminal
+sudo gem install acts_as_votable
+```
+>투표를 저장할 테이블을 만들고 마이그레이션합니다.
+``` terminal
+sudo rails generate acts_as_votable:migration
+sudo rake db:migrate
+```
+>app/models/link.rb에 다음 항목을 추가합니다.
+``` rb
+acts_as_votable
+```
+>잘 동작하는지 확인하기 위해 레일즈 콘솔을 이용하여 확인합니다.
+``` terminal
+$ sudo rails c
+$ @link = Link.first
+$ @user = User.first
+$ @link.votes_for.size
+$ @link.save
+```
+>투표를 볼 수 있도록 app/config/route.rb로 이동하여 다음을 추가합니다.
+``` rb
+# before
+resources :links
+# after
+resources :links do
+  member do
+    put "like", to: "links#upvote"
+    put "dislike", to: "links#downvote"
+  end
+end
+```
+>app/controller/links_controllers.rb에서 다음 메서드를 추가합니다.
+``` rb
+# upvote
+def upvote
+  @link = Link.find(params[:id])
+  @link.upvote_by current_user
+  redirect_to fallback_location: '/'
+end
+# downvote
+def downvote
+  @link = Link.find(params[:id])
+  @link.downvote_by current_user
+  redirect_to fallback_location: '/'
+end
+```
+>app/views/links/index.html.erb에서 Upvote와 Downvote 버튼을 추가합니다.
+``` erb
+# before
+#-------------생략-------------#
+  </h2>
+</div>
+<% end %>
+# after
+#-------------생략-------------#
+  </h2>
+  <div class="btn-group">
+    <a class="btn btn-default btn-sm" href="<%= link.url %>">Visit Link</a>
+    <%= link_to like_link_path(link), method: :put, class: "btn btn-default btn-sm" do %>
+      <span class="glyphicon glyphicon-chevron-up"></span>
+      Upvote
+      <%= link.get_upvotes.size %>
+    <% end %>
+    <%= link_to dislike_link_path(link), method: :put, class: "btn btn-default btn-sm" do %>
+      <span class="glyphicon glyphicon-chevron-down"></span>
+      Downvote
+      <%= link.get_downvotes.size %>
+    <% end %>
+  </div>
+</div>
+<% end %>
+```
+>app/views/links/show.html.erb에 Upvote와 Downvote 기능을 추가하기 위해 다음을 추가합니다.
+``` erb
+<div class="btn-group pull-right">
+  <%= link_to like_link_path(@link), method: :put, class: "btn btn-default btn-sm" do %>
+    <span class="glyphicon glyphicon-chevron-up"></span>
+    Upvote
+    <%= @link.get_upvotes.size %>
+  <% end %>
+  <%= link_to dislike_link_path(@link), method: :put, class: "btn btn-default btn-sm" do %>
+    <span class="glyphicon glyphicon-chevron-up"></span>
+    Downvote
+    <%= @link.get_downvotes.size %>
+  <% end %>
 </div>
 ```
