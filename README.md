@@ -233,3 +233,262 @@ $ @link = Link.third
 ``` r
 <%= link_to 'New Link', new_link_path %>
 ```
+- 2020-10-22
+>부트스트랩을 추가하기 위하여 Gemfile을 수정하고 설치합니다.
+``` gemfile
+gem 'bootstrap-sass', '~> 3.4', '>=3.4.1'
+```
+``` terminal
+sudo bundle install
+```
+>app/assets/stylesheets/application.css의 이름을 app/assets/stylesheets/application.scss로 변경합니다.    
+>변경한 파일에 다음 내용을 추가합니다.
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+>jquery-rails가 설치가 안되어 있다면 설치하기 위해 Gemfile을 수정하고 다음과 같이 실행합니다.
+``` gemfile
+gem 'jquery-rails'
+```
+``` terminal
+sudo bundle install
+```
+>app/views/layouts/application.html.erb파일을 [Mackenzie](https://github.com/mackenziechild/raddit/blob/master/app/views/layouts/application.html.erb)에서 복사 붙여넣기 해줍니다.    
+>스타일의 중복 정의를 막기 위해 scaffolds.scss 파일을 삭제합니다.    
+>버전 차이로 인해 Pipeline 오류가 발생한다면 아래처럼 수정해주세요.
+``` r
+# before
+<%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+# after
+<%= javascript_pack_tag 'application', 'data-turbolinks-track': true %>
+```
+>정상적으로 작동하는지 확인해봅니다.    
+>정상적으로 작동했다면 app/assets/stylesheets/application.scss를 [Mackenzie](https://github.com/mackenziechild/raddit/blob/master/app/assets/stylesheets/application.css.scss)에서 복사 붙여넣기 해줍니다.    
+>app/views/links/index.html.erb의 내용을 삭제하고 다음을 추가해줍니다.
+``` r
+<% @links.each do |link| %>
+<div class="link row clearfix">
+  <h2>
+    <%= link_to link.title, link %><br>
+    <small class="author">Submitted <%= time_ago_in_words(link.created_at) %> by <%= link.user.email %></small>
+  </h2>
+</div>
+<% end %>
+```
+>app/views/links/show.html.erb의 내용을 삭제하고 다음을 추가해줍니다.
+``` r
+<div class="page-header">
+  <h1>
+    <a href="<%= @link.url %>"><%= @link.title %></a><br>
+    <small>Submitted by <%= @link.user.email %></small>
+  </h1>
+</div>
+<div class="btn-group">
+  <%= link_to 'Visit URL', @link.url, class: "btn btn-primary" %>
+</div>
+<% if @link.user == current_user %>
+  <div class="btn-group">
+    <%= link_to 'Edit', edit_link_path(@link), class: "btn btn-default" %>
+    <%= link_to 'Destroy', @link, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-default" %>
+  </div>
+<% end %>
+```
+>추가를 하고 잘 적용이 되었는지 링크를 클릭하여 확인해봅니다.
+>잘 동작하는 것을 확인했으면 app/views/links/_form.html.erb의 내용을 수정합니다.
+``` r
+# before
+<div class="field">
+  <%= form.label :title %>
+  <%= form.text_field :title %>
+</div>
+
+<div class="field">
+  <%= form.label :url %>
+  <%= form.text_field :url %>
+</div>
+
+<div class="actions">
+  <%= form.submit %>
+</div>
+# after
+<div class="form-group">
+  <%= form.label :title %><br>
+  <%= form.text_field :title, class: "form-control" %>
+</div>
+
+<div class="form-group">
+  <%= form.label :url %><br>
+  <%= form.text_field :url, class: "form-control" %>
+</div>
+
+<div class="actions">
+  <%= form.submit "Submit", class: "btn btn-kg btn-primary" %>
+</div>
+```
+>Submit link가 잘 동작하는지 확인합니다.
+>app/views/devise/registrations/edit.html.erb를 수정합니다.
+``` erb
+# before
+<div class="field">
+  <%= f.label :email %><br />
+  <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+</div>
+
+<% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+  <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+<% end %>
+
+<div class="field">
+  <%= f.label :password %> <i>(leave blank if you don`t want to change it)</i><br />
+  <%= f.password_field :password, autocomplete: "new-password" %>
+  <% if @minimum_password_length %>
+    <br />
+    <em><%= @minimum_password_length %> characters minimum</em>
+  <% end %>
+</div>
+
+<div class="field">
+  <%= f.label :password_confirmation %><br />
+  <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+</div>
+
+<div class="field">
+  <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
+  <%= f.password_field :current_password, autocomplete: "current-password" %>
+</div>
+
+<div class="actions">
+  <%= f.submit "Update" %>
+</div>
+<% end %>
+
+<h3>Cancel my account</h3>
+
+<p>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></p>
+
+<%= link_to "Back", :back %>
+
+# after
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="form-inputs">
+      <div class="form-group">
+        <%= f.label :email %>
+        <%= f.email_field :email, class: "form-control", :autofocus => true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password %><i>(leave blank if you don't want to change it</i>
+        <%= f.password_field :password, class: "form-control", :autocomplete => "off" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :current_password %><i>(we need your current password to confirm your changes</i>
+        <%= f.password_field :current_password, class: "form-control" %>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= f.submit "Update", class: "btn btn-primary" %>
+    </div>
+    <% end %>
+  </div>
+
+  <div class="panel-footer">
+    <h3>Cancel my account</h3>
+    <p>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: "btn btn-default" %></p>
+  </div>
+</div>
+```
+>계정 수정 페이지가 잘 동작하는지 확인합니다.    
+>동작이 잘 된다면 app/views/devise/registrations/new.html.erb를 수정합니다.
+``` erb
+# before
+<div class="field">
+  <%= f.label :email %><br />
+  <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+</div>
+
+<div class="field">
+  <%= f.label :password %>
+  <% if @minimum_password_length %>
+    <em>(<%= @minimum_password_length %> characters minimum)</em>
+  <% end %><br />
+  <%= f.password_field :password, autocomplete: "new-password" %>
+</div>
+
+<div class="field">
+  <%= f.label :password_confirmation %><br />
+  <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+</div>
+
+<div class="actions">
+  <%= f.submit "Sign up" %>
+</div>
+
+# after
+<div class="form-group">
+  <%= f.label :email %><br />
+  <%= f.email_field :email, autofocus: true, class: "form-control", required: true %>
+</div>
+
+<div class="form-group">
+  <%= f.label :password %>
+  <%= f.password_field :password, class: "form-control", required: true %>
+</div>
+
+<div class="form-group">
+  <%= f.label :password_confirmation %><br />
+  <%= f.password_field :password_confirmation, class: "form-control", required: true %>
+</div>
+
+<div class="form-group">
+  <%= f.submit "Sign up", class: "btn btn-lg btn primary" %>
+</div>
+```
+>계정 생성 페이지가 잘 동작하는지 확인합니다.
+>잘 동작한다면 app/views/devise/sessions/new.html.erb를 다음과 같이 수정합니다.
+``` erb
+# before
+<div class="field">
+  <%= f.label :email %><br />
+  <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+</div>
+
+<div class="field">
+  <%= f.label :password %><br />
+  <%= f.password_field :password, autocomplete: "current-password" %>
+</div>
+
+<% if devise_mapping.rememberable? %>
+  <div class="field">
+    <%= f.check_box :remember_me %>
+    <%= f.label :remember_me %>
+  </div>
+<% end %>
+
+<div class="actions">
+  <%= f.submit "Log in" %>
+</div>
+# after
+<div class="form-group">
+  <%= f.label :email %>
+  <%= f.email_field :email, autofocus: true, class: "form-control", required: false %>
+</div>
+
+<div class="form-group">
+  <%= f.label :password %>
+  <%= f.password_field :password, class: "form-control", required: false %>
+</div>
+
+<div class="checkbox">
+  <label>
+    <%= f.check_box :remember_me, required: false, as: :boolean if devise_mapping.rememberable? %> Remember Me
+  </label>
+</div>
+
+<div class="form=group">
+  <%= f.submit "Log in", class: "btn btn-primary" %>
+</div>
+```
