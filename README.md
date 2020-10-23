@@ -645,7 +645,7 @@ end
 </div>
 <%= simple_form_for [@link, Comment.new] do |f| %>
   <div class="field">
-    <%= f.text_area :body, class: "form-conrtol" %>
+    <%= f.text_area :body, class: "form-control" %>
   </div>
   <br>
   <%= f.submit "Add Comment", class: "btn btn-primary" %>
@@ -676,3 +676,65 @@ gem 'record_tag_helper', '~> 1.0', '>= 1.0.1'
 sudo gem install record_tag_helper
 ```
 >잘 동작하는지 확인하기 링크를 클릭하여 확인합니다.
+>app/views/links/index.html.erb의 오타를 수정합니다.
+``` erb
+# before
+small class="author">Submitted <%= time_ago_in_words(link.created_at) %> by <%= link.user.email %></small>
+# after
+small class="author">Submitted <%= time_ago_in_words(link.created_at) %> ago by <%= link.user.email %></small>
+```
+>가입시 사용자 이름을 추가하기 위해 다음을 마이그레이션하고 app/views/devise/registration/edit.html.erb에 다음을 추가합니다.
+``` terminal
+$ sudo rails generate migration add_name_to_users name:string
+$ sudo rake db:migrate
+```
+``` erb
+<div class="form-group">
+  <%= f.label :name %>
+  <%= f.text_field :name, class: "form-control", :autofocus => true %>
+</div>
+```
+>app/controllers/application_controller.rb를 다음과 같이 수정합니다.
+``` rb
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+  before_action :configure_permitted_parameters, if: :devise_controller?
+  
+  protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:name])
+  end
+end
+```
+>app/controllers/views/links/index.html.erb를 수정해줍니다.
+``` erb
+# before
+<small class="author">Submitted <%= time_ago_in_words(link.created_at) %> ago by <%= link.user.email %></small>
+# after
+<small class="author">Submitted <%= time_ago_in_words(link.created_at) %> ago by <%= link.user.name %></small>
+```
+>app/controllers/views/links/show.html.erb를 수정해줍니다.
+``` erb
+# before
+<small>Submitted by <%= @link.user.email %></small>
+# after
+<small>Submitted by <%= @link.user.name %></small>
+```
+>app/controllers/views/comments/_comment.html.erb를 수정해줍니다.
+``` erb
+# before
+<p><small>Submitted <strong><%= time_ago_in_words(comment.created_at) %> ago</strong> by <%= comment.user.email %></small></p>
+# after
+<p><small>Submitted <strong><%= time_ago_in_words(comment.created_at) %> ago</strong> by <%= comment.user.name %></small></p>
+```
+>app/controllers/views/devise/registrations/new.html.erb를 추가해줍니다.
+``` erb
+<div class="form-group">
+  <%= f.label :name %>
+  <%= f.text_field :name, class: "form-control", :autofocus => true %>
+</div>
+```
+>이로써 link 작성자, comment 작성자를 이메일이 아닌 이름으로 표시하게 되었습니다.
+>Reddit Clone 프로젝트를 마칩니다.
