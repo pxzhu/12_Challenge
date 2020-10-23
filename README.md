@@ -586,7 +586,7 @@ end
 </div>
 ```
 - 2020-10-23
->댓글 기능을 추가하기 위해 아래와 같이 스카폴드를 수행하고 마이그레이션을 해줍니다.
+>댓글 기능을 추가하기 위해 아래와 같이 스카폴드를 수행하고 마이그레이션을 해줍니다.    
 >정상적으로 동작하는지 서버를 실행해서 확인해봅니다.
 ``` terminal
 $ sudo rails generate scaffold Comment link_id:integer:index body:text user:references
