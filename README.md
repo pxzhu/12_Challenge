@@ -736,5 +736,5 @@ end
   <%= f.text_field :name, class: "form-control", :autofocus => true %>
 </div>
 ```
->이로써 link 작성자, comment 작성자를 이메일이 아닌 이름으로 표시하게 되었습니다.
+>이로써 link 작성자, comment 작성자를 이메일이 아닌 이름으로 표시하게 되었습니다.    
 >Reddit Clone 프로젝트를 마칩니다.
