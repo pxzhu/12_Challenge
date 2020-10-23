@@ -13,6 +13,10 @@ gem 'bootstrap-sass', '~> 3.4', '>=3.4.1'
 gem 'jquery-rails'
 # acts_as_votable
 gem 'acts_as_votable', '~> 0.12.1'
+# simple_form
+gem 'simple_form'
+# so that we can use the 'div_for' method
+gem 'record_tag_helper', '~> 1.0', '>= 1.0.1'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
 # Use Puma as the app server

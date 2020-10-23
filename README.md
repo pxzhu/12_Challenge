@@ -585,3 +585,94 @@ end
   <% end %>
 </div>
 ```
+- 2020-10-23
+>댓글 기능을 추가하기 위해 아래와 같이 스카폴드를 수행하고 마이그레이션을 해줍니다.
+>정상적으로 동작하는지 서버를 실행해서 확인해봅니다.
+``` terminal
+$ sudo rails generate scaffold Comment link_id:integer:index body:text user:references
+$ sudo rake db:migrate
+```
+>comment를 사용하기 위한 simple_form을 설치하기 위해 Gemfile을 수정하고 설치해줍니다.
+``` gemfile
+gem 'simple_form'
+```
+``` terminal
+sudo bundle install
+```
+>app/models/comment.rb 파일에 다음을 추가해줍니다.
+``` rb
+belongs_to :link
+```
+>app/models/link.rb 파일에 다음을 추가해줍니다.
+``` rb
+has_many :comments
+```
+>config/routes.rb 파일을 다음과 같이 수정해줍니다.
+``` rb
+# before
+resources :links do
+  member do
+    put "like", to: "links#upvote"
+    put "dislike", to: "links#downvote"
+  end
+end
+# after
+resources :links do
+  member do
+    put "like", to: "links#upvote"
+    put "dislike", to: "links#downvote"
+  end
+  resources :comments
+end
+```
+>create에 메서드를 추가하기 위해 app/controllers/comments_controller.rb 파일을 수정해줍니다.
+``` rb
+# before
+@comment = Comment.new(comment_params)
+# after
+@link = Link.find(params[:link_id])
+@comment = @link.comments.new(comment_params)
+@comment.user = current_user
+```
+>app/views/links/show.html.erb 파일 하단에 다음을 추가해줍니다.
+``` erb
+<h3 class="comments_title">
+  <%= @link.comments.count %> comments
+</h3>
+
+<div id="comments">
+  <%= render :partial => @link.comments %>
+</div>
+<%= simple_form_for [@link, Comment.new] do |f| %>
+  <div class="field">
+    <%= f.text_area :body, class: "form-conrtol" %>
+  </div>
+  <br>
+  <%= f.submit "Add Comment", class: "btn btn-primary" %>
+<% end %>
+```
+>렌더링을 위한 페이지를 만들기 위해 app/views/comments에 다음을 포함한 _comment.html.erb를 만들어줍니다.
+``` erb
+<%= div_for(comment) do %>
+  <div class="comments_wrapper clearfix">
+    <div class="pull-left">
+      <p class="lead"><%= comment.body %></p>
+      <p><small>Submitted <strong><%= time_ago_in_words(comment.created_at) %> ago</strong> by <%= comment.user.email %></small></p>
+    </div>
+
+    <div class="btn-group pull-right">
+      <% if comment.user == current_user %>
+        <%= link_to 'Destroy', comment, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-sm btn-default" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+```
+>div_for를 작동시키기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'record_tag_helper', '~> 1.0', '>= 1.0.1'
+```
+``` terminal
+sudo gem install record_tag_helper
+```
+>잘 동작하는지 확인하기 링크를 클릭하여 확인합니다.
