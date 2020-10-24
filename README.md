@@ -1,9 +1,14 @@
-#### Mackenzie의 12개 웹 앱 만들기 프로젝트
-#### Ruby on Rails in MacOS 10.12
+### Mackenzie의 12개 웹 앱 만들기 프로젝트
+### Ruby on Rails in MacOS 10.12
 
-##### [Reddit Clone](#Reddit-Clone)
+## 목차
 
-Reddit Clone
+Chapter 01. [Reddit Clone](#-reddit-clone)    
+Chapter 02. [Blog](#-blog)    
+
+---
+
+## Reddit Clone
 - 2020-10-20
 >레일즈 프로젝트를 생성합니다.
 ``` terminal
@@ -737,4 +742,17 @@ end
 </div>
 ```
 >이로써 link 작성자, comment 작성자를 이메일이 아닌 이름으로 표시하게 되었습니다.    
->Reddit Clone 프로젝트를 마칩니다.
+>Reddit Clone 프로젝트를 마칩니다.    
+---    
+## Blog
+- 2020-10-24
+>레일즈 프로젝트를 생성합니다.    
+>프로젝트 폴더로 이동합니다.
+``` terminal
+$ sudo rails new blog
+$ cd blog/
+```
+>레일즈 서버를 켜서 잘 동작하는지 확인합니다.
+``` terminal
+$ sudo rails server
+```
