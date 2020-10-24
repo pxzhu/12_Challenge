@@ -896,7 +896,7 @@ end
   </div>
 
   <% flash.each do |name, msg| %>
-    <%= contnet_tag(:div, msg, class: "alert") %>
+    <%= content_tag(:div, msg, class: "alert") %>
   <% end %>
 
   <%= yield %>
@@ -1191,3 +1191,87 @@ get '/about'. to: 'pages#about'
     <%= link_to "Back to All Posts", root_path %>
   <% end %>
 ```
+>로그인 기능을 사용하기 위해 devise를 설치합니다.    
+>devise 설치를 위해 Gemfile에 다음을 추가해줍니다.    
+>devise를 설치해줍니다.
+``` gemfile
+gem 'deivse'
+```
+``` terminal
+$ sudo bundle install
+```
+>레일즈 서버를 켠 상태로 devise를 설치해줍니다.    
+>다음을 복사한 뒤 config/environments/development.rb 하단에 추가해줍니다.    
+``` terminal
+$ sudo rails generate devise:install
+  => ...
+    config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+    ...
+```
+>devise의 views도 생성해줍니다.    
+>User도 생성한 뒤 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate devise:views
+$ sudo rails generate devise User
+$ sudo rake db:migrate
+```
+>다음 주소에서 페이지가 잘 동작하는지 확인하고 회원가입을 합니다.
+```
+localhost:3000/users/sign_up
+```
+>app/views/devise/sessions/new.html.erb에서 최상단과 최하단에 다음을 추가해줍니다.    
+>중간중간 보기 좋게 <br> 태그도 넣어줍니다.
+``` erb
+<div id="page_wrapper">
+</div>
+```
+>app/controllers/posts_controller.rb 상단에 다음을 추가합니다.
+``` rb
+before_action :authenticate_user!, except: [:index, :show]
+```
+>로그인한 user만 Log Out이 표시되게 app/views/layouts/application.html.erb를 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+<div class="buttons">
+  <button class="button"><%= link_to "New Post", new_post_path %></button>
+  <button class="button">Log Out</button>
+</div>
+<!-- after -->
+<% if user_signed_in? %>
+  <div class="buttons">
+    <button class="button"><%= link_to "New Post", new_post_path %></button>
+    <button class="button">Log Out</button>
+  </div>
+<% end %>
+```
+>로그인하지 않은 user만 Admin Login이 표시되게 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+<p class="sign_in">Admin Login</p>
+<!-- after -->
+<% if !user_signed_in? %>
+  <p class="sign_in">Admin Login</p>
+<% end %>
+``` 
+>로그인한 user만 post를 수정, 삭제할 수 있게 하기 위하여 app/views/posts/show.html.erb를 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+| <%= link_to 'Edit', edit_post_path(@post) %>
+| <%= link_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' } %>
+<!-- after -->
+<% if user_signed_in? %>
+  | <%= link_to 'Edit', edit_post_path(@post) %>
+  | <%= link_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' } %>
+<% end %>
+```
+>로그인한 user만 comment를 삭제할 수 있게 하기 위하여 app/views/comments/_comment.html.erb를 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+<p><%= link_to 'Delete', [comment.post, comment], method: :delete, class: 'button', data: { confirm: 'Are you sure?' } %></p>
+<!-- after -->
+<% if user_signed_in? %>
+  <p><%= link_to 'Delete', [comment.post, comment], method: :delete, class: 'button', data: { confirm: 'Are you sure?' } %></p>
+<% end %>
+<% end %>
+```
+---  
