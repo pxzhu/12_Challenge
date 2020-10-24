@@ -1140,3 +1140,54 @@ has_many :comments
 # after
 has_many :comments, dependent: :destroy
 ```
+>About을 사용하기 위해 pages 컨트롤러를 생성합니다.
+``` terminal
+$ sudo rails generate controller pages
+```
+>about 메소드를 정의하기 위해 app/controllers/pages_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def about
+end
+```
+>경로를 설정하기 위해 config/routes.rb 파일에 다음을 추가해줍니다.
+``` rb
+# 생략
+get '/about'. to: 'pages#about'
+```
+>app/views/pages/about.html.erb 파일에 다음을 추가하여 about 페이지를 만들어줍니다.
+``` erb
+<div id="page_wrapper">
+  <div id="profile_image">
+    <%= image_tag "profile.jpeg" %>
+  </div>
+
+  <div id="content">
+    <h1>Hey, I'm Pxzhu</h1>
+    <p>Welcome to week 2 of my 12 Web Apps Challenge.</p>
+    <p>This Challenge is I built a blog in Rails. You're actually on the demo application right now. Cool stuff, right!</p>
+    <p>If you'd like to follow along as I learn more Ruby on Rails, find me on Github <a href="https://github.com/pxzhu">pxzhu</a> or Email to <a herf="mailto:wearan0nsgat@gmail.com">HERE!</a></p>
+  </div>
+</div>
+```
+>About 버튼 활성화를 위해 app/views/layouts/application.html.erb 파일의 다음을 수정합니다.
+``` erb
+<!-- before -->
+<li>About</li>
+<!-- after -->
+<li><%= link_to "About", about_path %></li>
+```
+>About 화면일 때, post 화면일 때 header의 정보를 바꿔주기 위하여 app/views/layouts/application.html.erb 파일의 다음을 수정합니다.
+``` erb
+<!-- before -->
+<div id="header">
+  <p>All Posts</p>
+<!-- after -->
+<div id="header">
+  <% if current_page?(root_path) %>
+    <p>All Posts</p>
+  <% elsif current_page?(about_path) %>
+    <p>About</p>
+  <% else %>
+    <%= link_to "Back to All Posts", root_path %>
+  <% end %>
+```
