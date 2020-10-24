@@ -3,8 +3,8 @@
 
 ## 목차
 
-Chapter 01. [Reddit Clone](##-reddit-clone)    
-Chapter 02. [Blog](##-blog)    
+Chapter 01. [Reddit Clone](#reddit-clone)    
+Chapter 02. [Blog](#blog)    
 
 ---
 
@@ -59,14 +59,14 @@ $ sudo bundle install
 $ sudo rails generate devise:install
 ```
 >config/environments/development.rb 파일을 수정합니다.
-``` ruby
+``` rb
 config.action_mailer.default_url_option = {
   host: 'localhost',
   port: 3000
 }
 ```
 >route.rb파일에 경로를 설정합니다. root를 링크 인덱스 페이지로 만듭니다.
-``` ruby
+``` rb
 root('links#index')
 ```
 >route.rb가 적용이 잘 되었는지 확인합니다.
@@ -74,7 +74,7 @@ root('links#index')
 $ sudo rails server
 ```
 >app/views/layouts/application.html.erb에 다음을 추가합니다.
-```
+``` erb
 <% flash.each do |name, msg| %>
   <%= content_tag(:div, msg, class: "alert alert-#{name}") %>
 <% end %>
@@ -111,7 +111,7 @@ $ @user = User.first
 $ ^D
 ```
 >app/views/layouts/application.html.erb 파일에서 로그인 여부에 따라 다른 링크를 제공하는 조건문을 추가합니다.
-``` r
+``` erb
 <% if user_signed_in? %>
   <ul>
     <li><%= link_to 'Submit link', new_link_path %></li>
@@ -130,11 +130,11 @@ $ ^D
 $ sudo rails server
 ```
 >등록되지 않은 사용자가 링크를 추가할 수 없도록 app/models/user.rb에 다음 코드를 추가합니다.
-``` ruby
+``` rb
 has_many :link
 ```
 >app/models/link.rb에 연결을 추가합니다.
-``` ruby
+``` rb
 belongs_to :user
 ```
 >검사를 위해 레일즈 콘솔로 이동합니다.
@@ -169,7 +169,7 @@ $ Link
 >User가 링크를 생성할 때 User id가 해당 링크에 할당되도록 링크 컨트롤러를 업데이트합니다.    
 >app/controller/links_controller.rb 안에 메소드를 수정합니다.    
 >영상에는 'current_user.links.build'라고 적혀있지만 오류가 발생하여 'current_user.link.build'로 수정하였다.
-``` ruby
+``` rb
 # before
 def new
   @link = Link.new
@@ -199,27 +199,27 @@ $ sudo rails c
 ```
 >몇 가지 인증을 추가하여 비인증자를 필터링합니다.    
 >links_controller.rb에 before_action을 추가합니다.    
-``` ruby
+``` rb
 before_action :authenticate_user!, except: [:index, :show]
 ```
 >Edit과 Destroy는 로그인을 하지 않으면 동작하지 않는것을 볼 수 있습니다.    
 >하지만 다른 사용자가 로그인을 하면 Edit과 Destroy가 동작합니다.
 >사용자가 로그인하지 않은 경우 Edit의 경로를 볼 수 없도록 app/views/links/index.html.erb를 수정합니다.
-``` r
-# before
-#-------------생략-------------#
+``` erb
+<!-- before -->
+<!-- 생략 -->
 <td><%= link_to 'Show', link %></td>
 <td><%= link_to 'Edit', edit_link_path(link) %></td>
 <td><%= link_to 'Destroy', link, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-#-----------이하 생략-----------#
-# after
-#-------------생략-------------#
+<!-- 이하 생략 -->
+<!-- after -->
+<!-- 생략 -->
 <td><%= link_to 'Show', link %></td>
 <% if link.user == current_user %>
   <td><%= link_to 'Edit', edit_link_path(link) %></td>
   <td><%= link_to 'Destroy', link, method: :delete, data: { confirm: 'Are you sure?' } %></td>
 <% end %>
-#-----------이하 생략-----------#
+<!-- 이하 생략 -->
 ```
 >레일즈 콘솔을 통하여 링크의 생성 User를 알 수 있다.    
 >세 번째 링크 생성 User를 1로 바꾸어보자.
@@ -236,7 +236,7 @@ $ @link = Link.third
 >세 번째 링크 소유자가 1로 바뀐 것을 확인할 수 있다.    
 >레일즈 서버를 이용해서 user_id: 2로 로그인 한 뒤에 수정이 가능한지 확인해보자.
 >app/views/links/index.html.erb 하단에서 다음 코드를 삭제합니다.
-``` r
+``` erb
 <%= link_to 'New Link', new_link_path %>
 ```
 - 2020-10-22
@@ -263,16 +263,16 @@ sudo bundle install
 >app/views/layouts/application.html.erb파일을 [Mackenzie](https://github.com/mackenziechild/raddit/blob/master/app/views/layouts/application.html.erb)에서 복사 붙여넣기 해줍니다.    
 >스타일의 중복 정의를 막기 위해 scaffolds.scss 파일을 삭제합니다.    
 >버전 차이로 인해 Pipeline 오류가 발생한다면 아래처럼 수정해주세요.
-``` r
-# before
+``` erb
+<!-- before -->
 <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-# after
+<!-- after -->
 <%= javascript_pack_tag 'application', 'data-turbolinks-track': true %>
 ```
 >정상적으로 작동하는지 확인해봅니다.    
 >정상적으로 작동했다면 app/assets/stylesheets/application.scss를 [Mackenzie](https://github.com/mackenziechild/raddit/blob/master/app/assets/stylesheets/application.css.scss)에서 복사 붙여넣기 해줍니다.    
 >app/views/links/index.html.erb의 내용을 삭제하고 다음을 추가해줍니다.
-``` r
+``` erb
 <% @links.each do |link| %>
 <div class="link row clearfix">
   <h2>
@@ -283,7 +283,7 @@ sudo bundle install
 <% end %>
 ```
 >app/views/links/show.html.erb의 내용을 삭제하고 다음을 추가해줍니다.
-``` r
+``` erb
 <div class="page-header">
   <h1>
     <a href="<%= @link.url %>"><%= @link.title %></a><br>
@@ -303,7 +303,7 @@ sudo bundle install
 >추가를 하고 잘 적용이 되었는지 링크를 클릭하여 확인해봅니다.    
 >잘 동작하는 것을 확인했으면 app/views/links/_form.html.erb의 내용을 수정합니다.
 ``` erb
-# before
+<!-- before -->
 <div class="field">
   <%= form.label :title %>
   <%= form.text_field :title %>
@@ -317,7 +317,7 @@ sudo bundle install
 <div class="actions">
   <%= form.submit %>
 </div>
-# after
+<!-- after -->
 <div class="form-group">
   <%= form.label :title %><br>
   <%= form.text_field :title, class: "form-control" %>
@@ -335,7 +335,7 @@ sudo bundle install
 >Submit link가 잘 동작하는지 확인합니다.    
 >app/views/devise/registrations/edit.html.erb를 수정합니다.
 ``` erb
-# before
+<!-- before -->
 <div class="field">
   <%= f.label :email %><br />
   <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
@@ -375,7 +375,7 @@ sudo bundle install
 
 <%= link_to "Back", :back %>
 
-# after
+<!-- after -->
 <div class="panel panel-default">
   <div class="panel-body">
     <div class="form-inputs">
@@ -410,7 +410,7 @@ sudo bundle install
 >계정 수정 페이지가 잘 동작하는지 확인합니다.    
 >동작이 잘 된다면 app/views/devise/registrations/new.html.erb를 수정합니다.
 ``` erb
-# before
+<!-- before -->
 <div class="field">
   <%= f.label :email %><br />
   <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
@@ -433,7 +433,7 @@ sudo bundle install
   <%= f.submit "Sign up" %>
 </div>
 
-# after
+<!-- after -->
 <div class="form-group">
   <%= f.label :email %><br />
   <%= f.email_field :email, autofocus: true, class: "form-control", required: true %>
@@ -456,7 +456,7 @@ sudo bundle install
 >계정 생성 페이지가 잘 동작하는지 확인합니다.    
 >잘 동작한다면 app/views/devise/sessions/new.html.erb를 다음과 같이 수정합니다.
 ``` erb
-# before
+<!-- before -->
 <div class="field">
   <%= f.label :email %><br />
   <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
@@ -477,7 +477,7 @@ sudo bundle install
 <div class="actions">
   <%= f.submit "Log in" %>
 </div>
-# after
+<!-- after -->
 <div class="form-group">
   <%= f.label :email %>
   <%= f.email_field :email, autofocus: true, class: "form-control", required: false %>
@@ -551,13 +551,13 @@ end
 ```
 >app/views/links/index.html.erb에서 Upvote와 Downvote 버튼을 추가합니다.
 ``` erb
-# before
-#-------------생략-------------#
+<!-- before -->
+<!-- 생략 -->
   </h2>
 </div>
 <% end %>
-# after
-#-------------생략-------------#
+<!-- after -->
+<!-- 생략 -->
   </h2>
   <div class="btn-group">
     <a class="btn btn-default btn-sm" href="<%= link.url %>">Visit Link</a>
@@ -715,23 +715,23 @@ end
 ```
 >app/controllers/views/links/index.html.erb를 수정해줍니다.
 ``` erb
-# before
+<!-- before -->
 <small class="author">Submitted <%= time_ago_in_words(link.created_at) %> ago by <%= link.user.email %></small>
-# after
+<!-- after -->
 <small class="author">Submitted <%= time_ago_in_words(link.created_at) %> ago by <%= link.user.name %></small>
 ```
 >app/controllers/views/links/show.html.erb를 수정해줍니다.
 ``` erb
-# before
+<!-- before -->
 <small>Submitted by <%= @link.user.email %></small>
-# after
+<!-- after -->
 <small>Submitted by <%= @link.user.name %></small>
 ```
 >app/controllers/views/comments/_comment.html.erb를 수정해줍니다.
 ``` erb
-# before
+<!-- before -->
 <p><small>Submitted <strong><%= time_ago_in_words(comment.created_at) %> ago</strong> by <%= comment.user.email %></small></p>
-# after
+<!-- after -->
 <p><small>Submitted <strong><%= time_ago_in_words(comment.created_at) %> ago</strong> by <%= comment.user.name %></small></p>
 ```
 >app/controllers/views/devise/registrations/new.html.erb를 추가해줍니다.
@@ -774,7 +774,7 @@ def index
 end
 ```
 ``` erb
-# index.html.erb
+<!-- index.html.erb -->
 <h1>This is the index.html.erb file... Yay!</h1>
 ```
 >잘 동작하는지 확인해줍니다.    
@@ -854,4 +854,63 @@ end
     <p class="date"><%= post.created_at.strftime("%B, %d, %Y") %></p>
   </div>
 <% end %>
+```
+>블로그 스타일링을 위해 app/views/layouts/application.html.erb를 추가해줍니다.    
+>app/assets/images/logo.svg를 추가해줍니다.    
+>app/assets/stylesheets/application.css 를 [application.scss](https://github.com/mackenziechild/blog/blob/master/app/assets/stylesheets/application.css.scss)을 이용하여 수정하고, app/assets/stylesheets/_normalize.scss를 추가하고 [_normalize.scss](https://github.com/mackenziechild/blog/blob/master/app/assets/stylesheets/_normalize.css.scss)를 이용하여 수정해줍니다.
+``` erb
+<!-- 생략 -->
+<%= stylesheet_link_tag 'application', 'http://fonts.googleapis.com/css?family=Raleway:400,700' %>
+<!-- 중략 -->
+<div id="sidebar">
+  <div id="logo">
+    <%= link_to root_path do %>
+      <%= image_tag "logo.svg" %>
+    <% end %>
+  </div>
+
+  <ul>
+    <li class="category">Website</li>
+    <li><%= link_to "Blog", root_path %></li>
+    <li>About</li>
+  </ul>
+
+  <ul>
+    <li class="category">Social</li>
+    <li><a href="">Twitter</a></li>
+    <li><a href="http://instagram.com/p_xzhu">Instagram</a></li>
+    <li><a href="https://github.com/pxzhu">Github</a></li>
+    <li><a href="mailto:wearan0nsgat@gmail.com">Email</a></li>
+  </ul>
+
+  <p class="sign_in">Admin Login</p>
+</div>
+<div id="main_content">
+  <div id="header">
+    <p>All Posts</p>
+
+    <div class="buttons">
+      <button class="button"><%= link_to "New Post", new_post_path %></button>
+      <button class="button">Log Out</button>
+    </div>
+  </div>
+
+  <% flash.each do |name, msg| %>
+    <%= contnet_tag(:div, msg, class: "alert") %>
+  <% end %>
+
+  <%= yield %>
+</div>
+```
+>새 post의 디자인을 바꾸기 위해 app/views/posts/new.html.erb를 전체적으로 묶어줍니다.
+``` erb
+<div id="page_wrapper">
+  <!-- 중략 -->
+</div>
+```
+>post 목록의 디자인을 바꾸기 위해 app/views/posts/show.html.erb를 전체적으로 묶어줍니다.
+``` erb
+<div id="post_conetnt">
+  <!-- 중략 -->
+</div>
 ```
