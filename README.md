@@ -1046,3 +1046,97 @@ end
 | <%= link_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' } %>
 <!-- 이하 생략 -->
 ```
+>comment 기능을 추가하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model Comment name:string body:text post:references
+$ sudo rake db:migrate
+```
+>app/models/post.rb에 다음을 추가합니다.
+``` rb
+has_many :comments
+```
+>post가 존재할 때 comment가 존재하도록 config/route.rb를 수정해줍니다.
+``` rb
+# before
+resources :posts
+root "posts#index"
+# after
+resources :posts do
+  resources :comments
+end
+root "posts#index"
+```
+>comment의 controller를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller Comments
+```
+>comment가 동작할 수 있도록 app/controllers/comments_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+def create
+  @post = Post.find(params[:post_id])
+  @comment = @post.comments.create(params[:comment].permit(:name, :body))
+
+  redirect_to post_path(@post)
+end
+```
+>app/views/comments/_comment.html.erb와 _form.html.erb를 생성해줍니다.    
+>_form.html.erb에 다음과 같이 폼을 만들어줍니다.
+``` erb
+<%= form_for([@post, @post.comments.build]) do |f| %>
+  <p>
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :body %><br>
+    <%= f.text_area :body %>
+  </p>
+  <br>
+  <p>
+    <%= f.submit %>
+  </p>
+<% end %>
+```
+>_comment.html.erb에 다음과 같이 디자인을 해줍니다.
+``` erb
+<div class="comment clearfix">
+  <div class="comment_content">
+    <p class="comment_name"><strong><%= comment.name %></strong></p>
+    <p class="comment_body"><%= comment.body %></p>
+    <p class="comment_time"><%= time_ago_in_words(comment.created_at) %> Ago</p>
+  </div>
+</div>
+```
+>post에 comment를 작성할수 있는 폼을 추가하기 위해 app/views/posts/show.html.erb에 다음을 추가해줍니다.
+``` erb
+<!-- 생략 -->
+  <div id="comments">
+    <h2><%= @post.comments.count %> Comments</h2>
+    <%= render @post.comments %>
+
+    <h3>Add a comment: </h3>
+    <%= render "comments/form" %>
+  </div>
+</div>
+```
+>comment 삭제 기능을 위해 app/controllers/comments_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def destroy
+  @post = Post.find(params[:post_id])
+  @comment = @post.comments.find(params[:id])
+  @comment.destroy
+
+  redirect_to post_path(@post)
+end
+```
+>comment 삭제 버튼을 만들기 위해 app/views/comments/_comment.html.erb 파일에 다음을 추가합니다.
+``` erb
+<p><%= link_to 'Delete', [comment.post, comment], method: :delete, class: 'button', data: { confirm: 'Are you sure?' } %></p>
+```
+>destroy 메소드를 동작하게 하기 위해서 app/models/post.rb를 다음과 같이 수정합니다.
+``` rb
+# before
+has_many :comments
+# after
+has_many :comments, dependent: :destroy
+```
