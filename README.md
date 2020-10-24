@@ -914,3 +914,50 @@ end
   <!-- 중략 -->
 </div>
 ```
+>post를 작성할 때 빈칸으로 완료하거나 제목 길이가 너무 짧지 않게 하기 위해 app/models/post.rb에 다음을 추가해줍니다.    
+> app/controllers/posts_controller.rb의 new 메소드와 create 메소드를 수정해줍니다.
+``` rb
+validates :title, presence: true, length: { minimum: 5 }
+validates :body, presence: true
+```
+``` rb
+# before
+def new
+end
+def create
+  @post = Post.new(post_params)
+  @post.save
+
+  redirect_to @post
+end
+# after
+def new
+    @post = Post.new
+  end
+def create
+  @post = Post.new(post_params)
+
+  if @post.save
+    redirect_to @post
+  else
+    render 'new'
+  end
+end
+```
+>post 작성 시 오류가 발생하면 오류를 알려주는 것을 만들기 위해 app/views/posts/new.html.erb에 다음을 추가해줍니다.
+``` erb
+<!-- 생략 -->
+<%= form_for :post, url: posts_path do |f| %>
+  <% if @post.errors.any? %>
+    <div id="errors">
+      <h2><%= pluralize(@post.errors.count, "error") %> pervented this post from saving</h2>
+      <ul>
+        <% @post.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+<!-- 이하 생략 -->
+```
