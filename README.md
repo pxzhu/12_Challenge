@@ -1220,7 +1220,7 @@ $ sudo rake db:migrate
 localhost:3000/users/sign_up
 ```
 >app/views/devise/sessions/new.html.erb에서 최상단과 최하단에 다음을 추가해줍니다.    
->중간중간 보기 좋게 <br> 태그도 넣어줍니다.
+>중간중간 보기 좋게 줄 바꿈 태그도 넣어줍니다.
 ``` erb
 <div id="page_wrapper">
 </div>
