@@ -961,3 +961,88 @@ end
   <p>
 <!-- 이하 생략 -->
 ```
+>post 수정을 위해 app/controllers/posts_controller.rb에 다음을 추가합니다.
+``` rb
+# 생략
+def edit
+  @post = Post.find(params[:id])
+end
+def update
+  @post = Post.find(params[:id])  
+
+  if @post.update(params[:post].permit(:title, :body))
+    redirect_to @post
+  else
+    render 'edit'
+  end
+end
+# 이하 생략
+```
+>app/views/posts/_form.html.erb 파일을 만들고 다음을 추가합니다.    
+``` erb
+<%= form_for @post do |f| %>
+  <% if @post.errors.any? %>
+    <div id="errors">
+      <h2><%= pluralize(@post.errors.count, "error") %> pervented this post from saving</h2>
+      <ul>
+        <% @post.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+    <%= f.label :title %><br>
+    <%= f.text_field :title %>
+  </p>
+
+  <p>
+    <%= f.label :body %><br>
+    <%= f.text_area :body %>
+  </p>
+
+  <p>
+    <%= f.submit %>
+  </p>
+<% end %>
+```
+>app/views/posts/new.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<div id="page_wrapper">
+  <h1>New Post</h1>
+
+  <%= render 'form' %>
+</div>
+```
+>app/views/posts/edit.html.erb 파일을 만들고 다음을 추가합니다.
+``` erb
+<div id="page_wrapper">
+  <h1>New Post</h1>
+
+  <%= render 'form' %>
+</div>
+```
+>app/views/posts/show.html.erb 파일에 다음을 추가합니다.
+``` erb
+<!-- 생략 -->
+Submitted <%= time_ago_in_words(@post.created_at) %> Ago
+| <%= link_to 'Edit', edit_post_path(@post) %>
+<!-- 이하 생략 -->
+```
+>post 삭제를 위해 app/controllers/posts_controller.rb에 다음을 추가합니다.
+``` rb
+# 생략
+def destroy
+  @post = Post.find(params[:id])
+  @post.destroy
+
+  redirect_to root_path
+end
+# 이하 생략
+```
+>app/views/posts/show.html.erb 파일에 다음을 추가합니다.
+<!-- 생략 -->
+| <%= link_to 'Edit', edit_post_path(@post) %>
+| <%= link_to 'Delete', post_path(@post), method: :delete, data: { confirm: 'Are you sure?' } %>
+<!-- 이하 생략 -->
+```
