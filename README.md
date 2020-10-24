@@ -3,8 +3,8 @@
 
 ## 목차
 
-Chapter 01. [Reddit Clone](#-reddit-clone)    
-Chapter 02. [Blog](#-blog)    
+Chapter 01. [Reddit Clone](##-reddit-clone)    
+Chapter 02. [Blog](##-blog)    
 
 ---
 
@@ -755,4 +755,103 @@ $ cd blog/
 >레일즈 서버를 켜서 잘 동작하는지 확인합니다.
 ``` terminal
 $ sudo rails server
+```
+>post 컨트롤러를 생성합니다.
+``` terminal
+$ sudo rails generate controller posts
+```
+>경로 설정을 위해 app/config/routes.rb에 다음을 추가합니다.    
+>index를 정의하기 위해 app/controllers/posts/posts_controller.rb에 다음을 추가합니다.    
+>app/views/posts/index.html.erb 파일을 만들어 다음을 추가합니다.
+``` rb
+# routes.rb
+resources : posts
+root "posts#index"
+```
+``` rb
+# posts_controller.rb
+def index
+end
+```
+``` erb
+# index.html.erb
+<h1>This is the index.html.erb file... Yay!</h1>
+```
+>잘 동작하는지 확인해줍니다.    
+>post를 새로 만드는 것을 구현하기 위해 app/controllers/posts/posts_controller.rb에 다음을 추가합니다.    
+>post를 새로 만들 수 있도록 app/views/posts/new.html.erb 파일을 만들어 다음을 추가합니다.
+``` rb
+def new
+end
+```
+``` erb
+<h1>New Post</h1>
+
+<%= form_for :post, url: posts_path do |f| %>
+  <p>
+    <%= f.label :title %><br>
+    <%= f.text_field :title %>
+  </p>
+
+  <p>
+    <%= f.label :body %><br>
+    <%= f.text_area :body %>
+  </p>
+
+  <p>
+    <%= f.submit %>
+  </p>
+<% end %>
+```
+>post 모델을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model Post title:string body:text
+$ sudo rake db:migrate
+```
+>app/controller/posts_controller.rb에 create와 show, private 메소드를 추가합니다.    
+>생성한 post를 볼 수 있는 페이지를 위해 app/views/posts/show.html.erb 생성하고 코드를 추가해줍니다.
+``` rb
+def create
+  @post = Post.new(post_params)
+  @post.save
+
+  redirect_to @post
+end
+
+private
+  def post_params
+    params.require(:post).permit(:title, :body)
+  end
+```
+``` erb
+<h1 class="title">
+  <%= @post.title %>
+</h1>
+
+<p class="date">
+  Submitted <%= time_ago_in_words(@post.created_at) %> Ago
+</p>
+
+<p class="body">
+  <%= @post.body %>
+</p>
+```
+>index에서 post를 확인하기 위해 app/controller/posts_controller.rb를 다음과 같이 수정해줍니다.    
+>app/views/posts/index.html.erb를 다음과 같이 수정해줍니다.
+``` rb
+# before
+def index
+end
+# after
+def index
+  @posts = Post.all.order('Created_at DESC')
+end
+```
+``` erb
+<% @posts.each do |post| %>
+  <div class="post_wrapper">
+    <h2 class="title"><%= link_to post.title, post %></h2>
+    <p class="date"><%= post.created_at.strftime("%B, %d, %Y") %></p>
+  </div>
+<% end %>
 ```
