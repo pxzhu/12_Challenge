@@ -5,6 +5,7 @@
 
 Chapter 01. [Reddit Clone](#reddit-clone)    
 Chapter 02. [Blog](#blog)    
+Chapter 03. [Recipe Box](#recipe-box)
 
 ---
 
@@ -1274,4 +1275,11 @@ before_action :authenticate_user!, except: [:index, :show]
 <% end %>
 <% end %>
 ```
----  
+---    
+
+## Recipe Box
+- 2020-10-25
+>레일즈 프로젝트를 생성합니다.
+``` terminal
+$ sudo rails new recipe_box
+```
