@@ -168,7 +168,7 @@ $ Link
   => Link(id: integer, title: string, url: string, created_at: datetime, updated_at: datetime, user_id: integer)
 ```
 >User가 링크를 생성할 때 User id가 해당 링크에 할당되도록 링크 컨트롤러를 업데이트합니다.    
->app/controller/links_controller.rb 안에 메소드를 수정합니다.    
+>app/controller/links_controller.rb 안에 드를 수정합니다.    
 >영상에는 'current_user.links.build'라고 적혀있지만 오류가 발생하여 'current_user.link.build'로 수정하였다.
 ``` rb
 # before
@@ -1279,7 +1279,359 @@ before_action :authenticate_user!, except: [:index, :show]
 
 ## Recipe Box
 - 2020-10-25
->레일즈 프로젝트를 생성합니다.
+>레일즈 프로젝트를 생성합니다.    
+>프로젝트 폴더로 이동합니다.    
+>서버를 켜서 잘 동작하는지 확인합니다.
 ``` terminal
 $ sudo rails new recipe_box
+$ cd recipe_box/
+$ sudo rails server
 ```
+>html 대신 사용하기 위해 Gemfile에 haml을 추가하고 설치해줍니다.
+``` gemfile
+gem 'haml', '~> 5.2'
+```
+``` terminal
+$ gem install haml
+```
+>recipe 컨트롤러를 생성합니다.    
+``` terminal
+$ sudo rails generate controller recipes
+```
+>config/routes.rb 파일에 다음을 추가하여 경로를 설정합니다.
+``` rb
+resources :recipes
+
+root "recipes#index"
+```
+>app/controllers/recipes_controller.rb 파일에 다음을 추가해줍니다.    
+>app/views/recipes/index.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` rb
+before_action :find_recipe, only: [:show, :edit, :update, :destroy]
+
+def index
+end
+def show
+end
+def new
+  @recipe = Recipe.new
+end
+def create
+  @recipe = Recipe.new(recipe_params)
+
+  if @recipe.save
+    redirect_to @recipe, notice: "Successfully created new recipe"
+  else
+    render 'new'
+  end
+end
+
+private
+
+def recipe_params
+  params.require(:recipe).permit(:title, :description)
+end
+def find_recipe
+  @recipe = Recipe.find(params[:id])
+end
+```
+``` haml
+%h1 This is the placeholder for the Recipes#Index
+```
+>Recipe 모델을 만들고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model Recipe title:string description:text user_id:integer
+$ sudo rake db:migrate
+```
+>app/views/recipes 폴더에 _form.html.haml 과 new.html.haml 파일을 생성해줍니다.    
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+```
+``` terminal
+$ sudo gem install simple_form
+```
+>app/views/recipes/_form.html.haml 파일에 다음을 추가합니다.    
+>app/views/recipes/new.html.haml 파일에 다음을 추가합니다.
+``` haml
+= simple_form_for @recipe, html: { multipart: true } do |f|
+  - if @recipe.errors.any?
+    #errors
+      %p
+        = @recipe.errors.count
+        Prevented this recipe froms saving
+      %ul
+        - @recipe.errors.full_messages.each do |msg|
+          %li= msg
+  .panel-body
+    = f.input :title, input_html: { class: 'form-control' }
+    = f.input :description, input_html: { class: 'form-control' }
+
+  = f.button :submit, class: "btn btn-primary"
+```
+``` haml
+%h1 New Recipe
+
+= render 'form'
+
+%br
+
+= link_to "Back", root_path, class: "btn btn-default"
+```
+>만들어진 recipe를 보기 위해 app/views/recipes/show.html.haml 파일을 만들고 다음을 추가합니다.
+``` haml
+%h1= @recipe.title
+%p= @recipe.description
+
+= link_to "Back", root_path, class: "btn btn-default"
+```
+>index 화면에서 레시피 링크를 볼 수 있도록 app/controllers/recipes_controller.rb 파일의 다음을 수정해줍니다.    
+>app/views/recipres/index.html.haml 파일도 수정해줍니다.
+``` rb
+# before
+def index
+end
+# after
+def index
+  @recipe = Recipe.all.order("created_at DESC")
+end
+```
+``` haml
+- @recipe.each do |recipe|
+  %h3= link_to recipe.title, recipe
+```
+>수정과 삭제 기능을 위해 app/controllers/recipes_controller.rb 파일에 다음을 추가해줍니다.    
+``` rb
+def edit
+end
+def update
+  if @recipe.update(recipe_params)
+    redirect_to @recipe
+  else
+    render 'edit'
+  end
+end
+def destroy
+  @recipe.destroy
+  redirect_to root_path, notice: "Successfully deleted recipe"
+end
+```
+>수정 화면을 구현하기 위해 app/views/recipes 폴더에 edit.html.haml 파일을 만들고 다음을 추가해줍니다.
+``` haml
+%h1 Edit Recipe
+
+=render 'form'
+```
+>app/views/recipres/show.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+= link_to "Edit", edit_recipe_path, class: "btn btn-default"
+= link_to "Delete", recipe_path, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
+```
+>bootstrap-sass 설치를 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'bootstrap-sass', '~> 3.4', '>= 3.4.1'
+```
+``` terminal
+$ sudo gem install bootstrap-sass
+```
+>app/assets/stylesheets/application.css 파일을 application.scss로 이름을 변경하고 다음을 추가해줍니다.    
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+>app/views/layouts/application.html.erb 파일을 application.html.haml로 이름을 변경하고 다음처럼 수정해줍니다.
+``` haml
+!!! 5
+%html
+%head
+  %title Recipe App
+  = csrf_meta_tags
+  = csp_meta_tag
+
+  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+  = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+
+%body
+  %nav.navbar.navbar-default
+    .container
+      .navbar-brand= link_to "Recipe Box", root_path
+
+      %ul.nav.navbar-nav.navbar-right
+        %li= link_to "New Recipe", new_recipe_path
+        %li= link_to "Sign Out", root_path
+
+  .container
+    - flash.each do |name, msg|
+      = content_tag :div, msg, class: "alert"
+    = yield
+```
+>paperclip을 설치하기 위해 Gemfile을 수정하고 설치해줍니다.
+``` gemfile
+gem 'paperclip', '~> 6.1'
+```
+``` terminal
+$ sudo gem install paperclip
+```
+>app/models/recipe.rb 파일에 다음을 추가합니다.
+``` rb
+has_attached_file :image, styles: { :medium => "400x400#" }
+validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
+```
+>paperclip을 생성하고 마이그레이션해줍니다.    
+>오류 발생 시 db/migrate 폴더에 있는 add_attachment_image_to_recipes.rb 파일을 다음과 같이 수정합니다.
+``` terminal
+$ sudo rails generate paperclip recipe image
+$ sudo rake db:migrate
+```
+``` rb
+# before
+class AddAttachmentImageToRecipes < ActiveRecord::Migration
+# after
+class AddAttachmentImageToRecipes < ActiveRecord::Migration[6.0]
+```
+>app/views/recopes/_form.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+= f.input :iamge, input_html: { class: 'form-control' }
+```
+>app/controllers/recipes_controller.rb 파일을 다음과 같이 수정해줍니다.
+``` rb
+# before
+def recipe_params
+  params.require(:recipe).permit(:title, :description)
+end
+# after
+def recipe_params
+  params.require(:recipe).permit(:title, :description, :image)
+end
+```
+>잘 동작하는지 확인해봅니다.    
+>잘 동작한다면 app/views/recipes/show.html.haml 파일 최상단에 다음을 추가합니다.
+``` haml
+= image_tag @recipe.image.url(:medium, class: "recipe_image")
+```
+>index 화면에도 image를 표시하기 위해  app/views/recipres/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+# before
+- @recipe.each do |recipe|
+  %h3= link_to recipe.title, recipe
+# after
+- @recipe.each do |recipe|
+  = link_to recipe do
+    = image_tag recipe.image.url(:medium)
+  %h3= link_to recipe.title, recipe
+```
+>app/assets/stylesheets/application.scss 파일을 [여기](https://github.com/mackenziechild/recipe_box/blob/master/app/assets/stylesheets/application.css.scss)를 참고하여 스타일을 붙여 넣어줍니다.    
+>coccon을 설치하기 위해 Gemfile을 수정하고 설치해줍니다.
+``` gemfile
+gem 'cocoon', '~> 1.2', '>= 1.2.15'
+```
+``` terminal
+$ sudo gem install cocoon
+```
+>cocoon을 불러오기 위해 app/javascript/packs/application.js 파일에 다음을 추가해줍니다.    
+>모델을 생성해줍니다.
+``` js
+require("jquery")
+require("@nathanvda/cocoon")
+```
+``` terminal
+$ sudo rails generate model Ingredient name:string recipe:belongs_to
+$ sudo rails generate model Direction step:text recipe:belongs_to
+$ sudo rake db:migrate
+```
+>app/models/recipe.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :infredients
+has_many :directions
+
+accepts_nested_attributes_for :ingredients,
+                              reject_if: proc { |attributes| attributes['name'].blank? },
+                              allow_destroy: true
+accepts_nested_attributes_for :directions,
+                              reject_if: proc { |attributes| attributes['step'].blank? },
+                              allow_destroy: true
+
+validates :title, :description, :image, presence: true
+```
+>app/controllers/recipes_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+params.require(:recipe).permit(:title, :description, :image)
+# after
+params.require(:recipe).permit(:title, :description, :image, ingredients_attributes: [:id, :name, :_destroy], directions_attributes: [:id, :step, :_destroy])
+```
+>app/views/recipes/_form.html.haml 파일에 다음을 추가합니다.
+``` haml
+<!-- 생략 -->
+.row
+  .col-md-6
+    %h3 Ingredients
+    #ingredients
+      = f.simple_fields_for :ingredients do |ingredient|
+        = render 'ingredient_fields', f: ingredient
+      .links
+        = link_to_add_association 'Add Ingredient', f, :ingredients, class: "btn btn-default add-button"
+  .col-md-6
+    %h3 Directions
+    #directions
+      = f.simple_fields_for :directions do |direction|
+        = render 'direction_fields', f: direction
+      .links
+        = link_to_add_association 'Add Step', f, :directions, class: "btn btn-default add-button"
+<!-- 이하 생략 -->
+```
+>app/views/recipes/_ingredient_fields.html.haml 파일을 만들고 다음을 추가합니다.
+``` haml
+.form-inline.clearfix
+  .nested-fields
+    = f.input :name, input_html: { class: 'form-input form-control' }
+    = link_to_remove_association "Remove", f, class: "form-button btn btn-default"
+```
+>app/views/recipes/_derection_fields.html.haml 파일을 만들고 다음을 추가합니다.
+``` haml
+.form-inline.clearfix
+  .nested-fields
+    = f.input :step, input_html: { class: 'form-input form-control' }
+    = link_to_remove_association "Remove Step", f, class: "btn btn-default form-button"
+```
+>cocoon이 제대로 작동하지 않을 것입니다.    
+>다음을 실행합니다.
+``` terminal
+$ sudo yarn add cocoon-js
+```
+>app/javascripts/packs/application.js 파일에 다음을 추가합니다.
+``` js
+import 'cocoon-js';
+```
+>app/views/recipes/show.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+.main_content
+  #recipe_top.row
+    .col-md-4
+      = image_tag @recipe.image.url(:medium), class: "recipe_image"
+    .col-md-8
+      #recipe_info
+        %h1= @recipe.title
+        %p.description= @recipe.description
+    
+  .row
+    .col-md-6
+      #ingredients
+        %h2 Ingredients
+        %ul
+          - @recipe.ingredients.each do |ingredient|
+            %li= ingredient.name
+    .col-md-6
+      #directions
+        %h2 Directions
+        %ul
+          - @recipe.directions.each do |direction|
+            %li= direction.step
+
+  .row
+    .col-md-12
+      = link_to "Back", root_path, class: "btn btn-default"
+      = link_to "Edit", edit_recipe_path, class: "btn btn-default"
+      = link_to "Delete", recipe_path, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
+```
+>Ingredients와 Directions가 존재하면 삭제 시 500 Error가 발생한다.    
