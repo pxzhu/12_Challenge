@@ -31,6 +31,8 @@ gem 'bootstrap-sass', '~> 3.4', '>= 3.4.1'
 gem 'paperclip', '~> 6.1'
 # cocoon
 gem 'cocoon', '~> 1.2', '>= 1.2.15'
+# devise
+gem 'devise', '~> 4.7', '>= 4.7.3'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'

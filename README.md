@@ -1635,3 +1635,158 @@ import 'cocoon-js';
       = link_to "Delete", recipe_path, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
 ```
 >Ingredients와 Directions가 존재하면 삭제 시 500 Error가 발생한다.    
+- 2020-10-26
+>devise를 설치하기 위해 Gemfile에 다음을 추가하고 설치합니다.
+``` gemfile
+gem 'devise', '~> 4.7', '>= 4.7.3'
+```
+``` terminal
+$ sudo gem install devise
+$ sudo rails generate devise:install
+```
+>devise를 사용하기 위해 config/environments/development.rb 파일에 다음을 추가합니다.    
+``` rb
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+>views를 생성해줍니다.    
+>User를 생성해줍니다.    
+>마이그레이션을 해줍니다.
+``` terminal
+$ sudo rails generate devise:views
+$ sudo rails generate devise User
+$ sudo rake db:migrate
+```
+>app/models/user.rb 파일에 다음을 추가합니다.    
+>app/models/recipe.rb 파일에 다음을 추가합니다.    
+``` rb
+has_many :recipes
+```
+``` rb
+belongs_to :user
+```
+>app/controllers/recipes_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+# 생략
+def new
+  @recipe = Recipe.new
+end
+def create
+  @recipe = Recipe.new(recipe_params)
+# 이하 생략
+# after
+# 생략
+def new
+  @recipe = current_user.recipes.build
+end
+def create
+  @recipe = current_user.recipes.build(recipe_params)
+# 이하 생략
+```
+>레일즈 콘솔에서 다음과 같이 레시피를 생성하고 유저를 추가합니다.
+``` terminal
+$ sudo rails c
+$ @recipe = Recipe.new
+$ @recipe = current_user.recipes.build
+```
+>app/views/recipre/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+<!-- 생략 -->
+%p
+  Submitted by
+  = @recipe.user.email
+<!-- 이하 생략 -->
+```
+>app/views/layouts/application.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+<!-- before -->
+<!-- 생략 -->
+%ul.nav.navbar-nav.navbar-right
+  %li= link_to "New Recipe", new_recipe_path
+  %li= link_to "Sign Out", root_path
+<!-- 이하 생략 -->
+<!-- after -->
+<!-- 생략 -->
+- if user_signed_in?
+  %ul.nav.navbar-nav.navbar-right
+    %li= link_to "New Recipe", new_recipe_path
+    %li= link_to "Sign Out", destroy_user_session_path, method: :delete
+- else
+  %ul.nav.navbar-nav.navbar-right
+    %li= link_to "Sign Up", new_user_registration_path
+    %li= link_to "Sign in", new_user_session_path
+<!-- 이하 생략 -->
+```
+>app/views/recipes/show.htrml.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+<!-- 생략 -->
+= link_to "Edit", edit_recipe_path, class: "btn btn-default"
+= link_to "Delete", recipe_path, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
+<!-- after -->
+<!-- 생략 -->
+- if user_signed_in?
+  = link_to "Edit", edit_recipe_path, class: "btn btn-default"
+  = link_to "Delete", recipe_path, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
+```
+>Sign in 페이지에 디자인을 입히기 위해 app/views/sessions/new.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <h2>Sign in</h2>
+
+    <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="form-inputs">
+        <%= f.input :email,
+                    required: false,
+                    autofocus: true,
+                    input_html: { class: 'form-control' } %>
+        <%= f.input :password,
+                    required: false,
+                    input_html: { class: 'form-control' } %>
+        <%= f.input :remember_me, as: :boolean, class: 'form-control' if devise_mapping.rememberable? %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.button :submit, "Sign in", class: 'btn btn-primary' %>
+      </div>
+      <br>
+    <% end %>
+    
+    <%= render "devise/shared/links" %>
+  </div>
+</div>
+```
+>Sign Up 화면을 디자인하기 위해 app/views/devise/registrations/new.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <h2>Sign up</h2>
+
+    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <%= f.error_notification %>
+
+      <div class="form-inputs">
+        <%= f.input :email,
+                    required: true,
+                    autofocus: true,
+                    input_html: { class: 'form-control' }%>
+        <%= f.input :password,
+                    required: true,
+                    hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
+                    input_html: { class: 'form-control' } %>
+        <%= f.input :password_confirmation,
+                    required: true,
+                    input_html: { class: 'form-control' } %>
+      </div>
+      <br>
+      <div class="form-actions">
+        <%= f.button :submit, "Sign up", class: "btn btn-primary" %>
+      </div>
+      <br>
+    <% end %>
+
+    <%= render "devise/shared/links" %>
+  </div>
+</div>
+```
