@@ -5,7 +5,8 @@
 
 Chapter 01. [Reddit Clone](#reddit-clone)    
 Chapter 02. [Blog](#blog)    
-Chapter 03. [Recipe Box](#recipe-box)
+Chapter 03. [Recipe Box](#recipe-box)    
+Chapter 04. [Pinterest Clone](#pinterest-clone)
 
 ---
 
@@ -1791,3 +1792,148 @@ $ @recipe = current_user.recipes.build
 </div>
 ```
 ---
+
+## Pinterest Clone
+- 2020-10-28
+>레일즈 프로젝트를 생성합니다.
+``` terminal
+$ sudo rails new pinterestclone
+```
+>프로젝트 폴더로 이동합니다.    
+>레일즈 서버를 시작해줍니다.    
+``` terminal
+$ cd pinterestclone
+$ sudo rails server
+```
+>haml, bootstrap-sass, simple_form을 설치하기 위해 Gemfile에 다음을 추가하고 설치합니다.
+``` gemfile
+gem 'haml', '~> 5.2'
+gem 'bootstrap-sass', '~> 3.4', '>= 3.4.1'
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+```
+``` terminal
+$ sudo gem install haml
+$ sudo gem install bootstrap-sass
+$ sudo gem install simple_form
+```
+>Pin 모델을 생성하고 마이그레이션 한 뒤 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate model Pin title:string description:text
+$ sudo rake db:migrate
+$ sudo rails generate controller Pins
+```
+>app/controllers/pins_controller.rb 파일에 index 메소드를 생성합니다.
+``` rb
+def index
+end
+```
+>config/routes.rb 파일에 경로를 설정해줍니다.
+``` rb
+resources :pins
+
+root "pins#index"
+```
+>index 화면을 추가하기 위해 app/views/pins 폴더에 index.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+%h1 This is the index placeholder
+```
+>잘 동작하는지 확인한 뒤, pin 생성을 위해 app/controllers/pins_controller.rb 파일에 다음을 추가합니다.
+``` rb
+before_action :find_pin, only: [:show, :edit, :update, :destroy]
+# 중략
+def show
+end
+def new
+  @pin = Pin.new
+end
+def create
+  @pin = Pin.new(pin_params)
+
+  if @pin.save
+    redirect_to @pin, notice: "Successfully created new Pin"
+  else
+    render 'new'
+  end
+end
+
+private
+
+def pin_params
+  params.require(:pin).permit(:title, :description)
+end
+def find_pin
+  @pin = Pin.find(params[:id])
+end
+```
+>pin을 생성하기 위해 app/views/pins/new.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+%h1 New Form
+
+= render 'form'
+
+= link_to "Back", root_path
+```
+>simple_form을 쉽게 사용하기 위해 터미널에서 다음을 설치해줍니다.
+``` terminal
+$ sudo rails generate simple_form:install --bootstrap
+```
+>pin을 보기 위한 form을 위해 app/view/pins/_form/html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+= simple_form_for @pin, html: { multipart: true } do |f|
+  - if @pin.errors.any?
+    #errors
+      %h2
+      = pluralize(@pin.errors.count, "error")
+      prevented this Pin from saving
+      %ul
+        - @pin.errors.full_messages.each do |msg|
+          %li= msg
+  
+  .form-group
+    = f.input :title, input_html: { class: 'form-control' }
+
+  .form-group
+    = f.input :description, input_html: { class: 'form-control' }
+
+  = f.button :submit, class: "btn btn-primary"
+```
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 바꾸고 다음과 같이 수정합니다.
+``` haml
+!!! 5
+%html
+%head
+  %title Pin Board
+  = csrf_meta_tags
+  = csp_meta_tag
+
+  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+  = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+
+%body
+  - flash.each do |name, msg|
+    = content_tag :div, msg, class: "alert alert-info"
+
+  = yield
+```
+>생성한 pin을 보기 위해 app/views/pins 폴더에 show.html.haml 파일을 만들고 다음을 추가해줍니다.
+``` haml
+%h1= @pin.title
+%p= @pin.description
+
+= link_to "Back", root_path
+```
+>index 화면에서 pin으로 이동할 수 있게 하기 위해 app/views/pins/index.html.haml 파일을 다음과 같이 수정합니다.    
+>app/controllers/pins_controller.rb 파일도 다음과 같이 수정합니다.
+``` haml
+- @pins.each do |pin|
+  %h2= link_to pin.title, pin
+```
+``` rb
+# before
+def index
+end
+# after
+def index
+  @pins = Pin.all.order("created_at DESC")
+end
+```
