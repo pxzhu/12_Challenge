@@ -1937,3 +1937,49 @@ def index
   @pins = Pin.all.order("created_at DESC")
 end
 ```
+- 2020-10-29
+>app/controllers/pins_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+def edit
+end
+def update
+  if @pin.update(pin_params)
+    redirect_to @pin, notice: "Pin was Successfully updated!!"
+  else
+    render 'edit'
+  end
+end
+def destroy
+end
+```
+>app/views/pins/edit.html.haml 파일을 생성하고 다음을 추가해줍니다.    
+>app/views/pins/show.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+%h1 Edit Pin
+
+= render 'form'
+
+= link_to "Cancle", pin_path
+```
+``` haml
+= link_to "Edit", edit_pin_path
+```
+>app/controllers/pins_controller.rb 파일을 다음과 같이 수정합니다.    
+>app/views/pins/show.html.haml 파일에 다음을 추가해줍니다.
+``` rb
+# before
+def destroy
+end
+# after
+def destroy
+  @pin.destroy
+  redirect_to root_path
+end
+```
+``` haml
+= link_to "Delete", pin_path, method: :delete, data: { confirm: 'Are you sure?' }
+```
+>app/views/pins/index.html.haml 파일 최상단에 다음을 추가해줍니다.
+``` haml
+=link_to "New Pin", new_pin_path
+```
