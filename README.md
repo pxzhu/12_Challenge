@@ -1937,7 +1937,7 @@ def index
   @pins = Pin.all.order("created_at DESC")
 end
 ```
-- 2020-10-29
+- 2020-10-30
 >app/controllers/pins_controller.rb 파일에 다음을 추가해줍니다.
 ``` rb
 def edit
@@ -1982,4 +1982,67 @@ end
 >app/views/pins/index.html.haml 파일 최상단에 다음을 추가해줍니다.
 ``` haml
 =link_to "New Pin", new_pin_path
+```
+- 2020-10-31
+>User를 추가하기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'devise', '~> 4.7', '>= 4.7.3'
+```
+``` terminal
+$ sudo gem install devise
+$ sudo rails generate devise:install
+```
+>config/environments/development.rb 파일에 다음을 추가합니다.
+``` rb
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+>views와 User 모델을 만들고 마이그레이션합니다.
+``` terminal
+$ sudo rails generate devise:views
+$ sudo rails generate devise User
+$ sudo rake db:migrate
+```
+>app/models/user.rb 파일에 다음을 추가합니다.    
+>app/models/pin.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :pins
+```
+``` rb
+belongs_to :user
+```
+>User를 Pins에 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate migration add_user_id_to_pins user_id:integer:index
+$ sudo rake db:migrate
+```
+>레일즈 콘솔에 들어가서 pin 게시물에 user를 추가해줍니다.
+``` terminal
+$ sudo rails c
+$ @pin = Pin.first
+$ @user = User.first
+$ @pin.user = @user
+$ @pin
+  =>Pin id: 2, title: "This is my first Pin,(Edit)", description: "I'm baby iPhone XOXO williamsburg pok pok twee qui...", created_at: "2020-10-28 12:42:52", updated_at: "2020-10-30 12:04:18", user_id: 1
+$ @pin.save
+```
+>pin 게시물의 작성자 표시를 위해 app/views/pins/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+%p
+Submitted by 
+=@pin.user.email
+
+%br
+```
+>pin 게시물 생성 시에 작성자를 함께 넣기 위해 app/controllers/pins_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+  @pin = Pin.new
+end
+def create
+  @pin = Pin.new(pin_params)
+# after
+  @pin = current_user.pins.build
+end
+def create
+  @pin = current_user.pins.build(pin_params)
 ```
