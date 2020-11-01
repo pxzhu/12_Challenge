@@ -2046,3 +2046,68 @@ end
 def create
   @pin = current_user.pins.build(pin_params)
 ```
+- 2020-11-01
+>스타일을 설정하기위해 app/assets/stylesheets/application.css 파일을 application.scss 파일로 변경하고 다음을 추가합니다.
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+>Gemfile에 jQuery를 추가하고 설치해줍니다.
+``` gemfile
+gem 'jquery-rails'
+```
+``` terminal
+$ sudo bundle install
+```
+>app/javascript/packs/application.js 파일에 다음을 추가합니다.
+``` js
+require("jquery")
+require("bootstrap-sprockets")
+```
+>app/views/layouts/application.html.haml 파일을 다음과같이 수정합니다.
+``` haml
+<!-- before -->
+%body 
+  - flash.each do |name, msg|
+    = content_tag :div, msg, class: "alert alert-info"
+    
+  = yield
+<!-- after -->
+%body
+  %nav.navbar.navbar-default
+    .container
+      .navbar-brand= link_to "Pin Board", root_path
+
+      - if user_signed_in?
+        %ul.nav.navbar-nav.navbar-right
+          %li= link_to "New Pin", new_pin_path
+          %li= link_to "Account", edit_user_registration_path
+          %li= link_to "Sign Out", destroy_user_session_path, method: :delete
+      - else
+        %ul.nav.navbar-nav.navbar-right
+          %li= link_to "Sign Up", new_user_registration_path
+          %li= link_to "Sign In", new_user_session_path
+  .container
+    - flash.each do |name, msg|
+      = content_tag :div, msg, class: "alert alert-info"
+    
+    = yield
+```
+>New Pin이 중복되는 것을 방지하기 위해 app/views/pins/index.html.haml 파일에서 다음을 삭제합니다.
+``` haml
+=link_to "New Pin", new_pin_path
+```
+>app/views/pins/new.html.haml 파일에 스타일을 적용시켜 줍니다.    
+>app/views/pins/edit.html.haml 파일에 스타일을 적용시켜 줍니다.
+``` haml
+.col-md-6.col-md-offset-3
+  %h1 New Form
+  = render 'form'
+  = link_to "Back", root_path
+```
+``` haml
+.col-md-6.col-md-offset-3
+  %h1 Edit Pin
+  = render 'form'
+  = link_to "Cancle", pin_path
+```
