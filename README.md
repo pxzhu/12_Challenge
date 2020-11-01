@@ -2111,3 +2111,51 @@ require("bootstrap-sprockets")
   = render 'form'
   = link_to "Cancle", pin_path
 ```
+>이미지를 적용하기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'paperclip', '~> 6.1'
+```
+``` terminal
+$ sudo gem install paperclip
+```
+>paperclip을 사용하기 위해 app/models/pin.rb 파일에 다음을 추가해줍니다.    
+>paperclip의 pin image를 생성하고 마이그레이션을 해줍니다.
+``` rb
+has_attached_file :image, styles: { medium: "300x300>" }
+validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
+```
+``` terminal
+$ sudo rails generate paperclip pin image
+$ sudo rake db:migrate
+```
+>마이그레이션 실행 시 오류가 발생한다면 app/db/migrate 폴더에 add_attachment_image_to_pins.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+class AddAttachmentImageToPins < ActiveRecord::Migration
+# after
+class AddAttachmentImageToPins < ActiveRecord::Migration[6.0]
+```
+>app/views/pins/_form.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+.form-group
+  = f.input :image, input_html: { class: 'form-control' }
+```
+>Pin 생성 시 이미지를 저장할 수 있게 app/controllers/pins_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+params.require(:pin).permit(:title, :description)
+# after
+params.require(:pin).permit(:title, :description, :image)
+```
+>생성한 Pin의 이미지를 보기 위해 app/views/pins/show.html.haml 파일 최상단에 다음을 추가합니다.
+``` haml
+= image_tag @pin.image.url(:medium)
+```
+>Index 페이지에서 이미지를 볼 수 있게 app/views/pins/index.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to (image_tag pin.image.url(:medium)), pin
+```
+>수정하면서 이미지를 볼 수 있게 app/views/pins/edit.html.haml 파일에 다음을 추가합니다.
+``` haml
+= image_tag @pin.image.url(:medium)
+```
