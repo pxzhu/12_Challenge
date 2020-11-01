@@ -2159,3 +2159,166 @@ params.require(:pin).permit(:title, :description, :image)
 ``` haml
 = image_tag @pin.image.url(:medium)
 ```
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'masonry-rails', '~> 0.2.4'
+```
+``` terminal
+$ sudo gem install masonry-rails
+```
+>app/javascript/packs/application.js 파일에 다음을 추가합니다.    
+``` js
+require("masonry/jquery.masonry")
+```
+>app/javascript/packs/폴더에 pins.coffee 파일을 추가하고 다음을 추가합니다.
+``` coffee
+$ ->
+  $('#pins').imagesLoaded ->
+    $('#pins').masonry
+      itemSelector: '.box'
+      isFitWidth: true
+```
+>javascript를 적용하기 위해 app/views/pins/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+- @pins.each do |pin|
+  = link_to (image_tag pin.image.url(:medium)), pin
+  %h2= link_to pin.title, pin
+<!-- after -->
+#pins.transitions-enabled
+  - @pins.each do |pin|
+    .box.panel.panel-default
+      = link_to (image_tag pin.image.url), pin
+      .panel-body
+        %h2= link_to pin.title, pin
+        %p.user
+        Submitted by
+        = pin.user.email
+```
+>스타일 적용을 위해 app/assets/stylesheets/application.scss 파일에 다음을 추가합니다.
+``` scss
+ *= require 'masonry/transitions'
+ *= require 'masonry/basic'
+body {
+	background: #E9E9E9;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 100;
+}
+
+nav {
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22);
+	.navbar-brand {
+		a {
+			color: #BD1E23;
+			font-weight: bold;
+			&:hover {
+				text-decoration: none;
+			}
+		}
+	}
+}
+
+#pins {
+  margin: 0 auto;
+  width: 100%;
+  .box {
+	  margin: 10px;
+	  width: 350px;
+	  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22);
+	  border-radius: 7px;
+	  text-align: center;
+	  img {
+	  	max-width: 100%;
+	  	height: auto;
+	  }
+	  h2 {
+	  	font-size: 22px;
+	  	margin: 0;
+	  	padding: 25px 10px;
+	  	a {
+				color: #474747;
+	  	}
+	  }
+	  .user {
+	  	font-size: 12px;
+	  	border-top: 1px solid #EAEAEA;
+			padding: 15px;
+			margin: 0;
+	  }
+	}
+}
+
+#edit_page {
+	.current_image {
+		img {
+			display: block;
+			margin: 20px 0;
+		}
+	}
+}
+
+#pin_show {
+	.panel-heading {
+		padding: 0;
+	}
+	.pin_image {
+		img {
+			max-width: 100%;
+			width: 100%;
+			display: block;
+			margin: 0 auto;
+		}
+	}
+	.panel-body {
+		padding: 35px;
+		h1 {
+			margin: 0 0 10px 0;
+		}
+		.description {
+			color: #868686;
+			line-height: 1.75;
+			margin: 0;
+		}
+	}
+	.panel-footer {
+		padding: 20px 35px;
+		p {
+			margin: 0;
+		}
+		.user {
+			padding-top: 8px;
+		}
+	}
+}
+
+textarea {
+	min-height: 250px;
+}
+```
+>masonry가 정상적으로 동작하지 않는다. 해결법을 찾지 못했으니 일단 넘어가자.    
+>app/views/pins/show.html.haml 파일을 다음과 같이 수정한다.
+``` haml
+#pin_show.row
+  .col-md-8.col-md-offset-2
+    .panel.panel-default
+      .panel-heading.pin_image
+        = image_tag @pin.image.url
+      .panel-body
+        %h1= @pin.title
+        %p= @pin.description
+        %p
+        Submitted by 
+        =@pin.user.email
+      .panel-footer
+        .row
+          .col-md-6
+            %p.user
+            Submitted by
+            =@pin.user.email
+          .col-md-6
+            .btn-group.pull-right
+              = link_to "Edit", edit_pin_path, class: "btn btn-default"
+              = link_to "Delete", pin_path, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-default"
+```
