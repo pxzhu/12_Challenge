@@ -2368,10 +2368,183 @@ end
 <!-- before -->
 .btn-group.pull-right
   = link_to "Edit", edit_pin_path, class: "btn btn-default"
+  = link_to "Delete", pin_path, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-default"
 <!-- after -->
 .btn-group.pull-right
   = link_to like_pin_path(@pin), method: :put, class: "btn btn-default" do
     %span.glyphicon.glyphicon-heart
       = @pin.get_upvotes.size
-  = link_to "Edit", edit_pin_path, class: "btn btn-default"
+  - if user_signed_in?
+    = link_to "Edit", edit_pin_path, class: "btn btn-default"
+    = link_to "Delete", pin_path, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-default"
+```
+>로그인을 하지 않으면 index와 show 페이지만 볼 수 있게 하고 나머지 기능은 로그인을 해야 동작하게 하기위해 app/controllers/pins_controller.rb 파일에 다음을 추가합니다.
+``` rb
+before_action :authenticate_user!, except: [:index, :show]
+```
+>pin 생성 페이지를 바꿔주기 위해 app/views/pins/new.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+.col-md-6.col-md-offset-3
+  .row
+    .panel.panel-default
+      .panel-heading
+        %h1 New Pin
+      .panel-body
+        = render 'form'
+```
+>계정 수정 화면 디자인 적용을 위해 app/views/devise/registrations/edit.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<div class="col-md-6 col-md-offset-3">
+  <div class="row">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2>Edit Your Pin</h2>
+      </div>
+
+      <div class="panel-body">
+        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+          <%= f.error_notification %>
+
+          <div class="form-group">
+            <%= f.input :email, required: true, autofocus: true, input_html: {class: 'form-control' } %>
+          </div>
+
+          <div class="form-gruop">
+            <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+              <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
+            <% end %>
+          </div>
+
+          <div class="form-group">
+            <%= f.input :password,
+                        hint: "leave it blank if you don't want to change it",
+                        required: false,
+                        input_html: { autocomplete: "new-password" },
+                        input_html: {class: 'form-control' } %>
+          </div>
+
+          <div class="form-group">
+            <%= f.input :password_confirmation,
+                        required: false,
+                        input_html: { autocomplete: "new-password" },
+                        input_html: {class: 'form-control' } %>
+          </div>
+
+          <div class="form-group">
+            <%= f.input :current_password,
+                        hint: "we need your current password to confirm your changes",
+                        required: true,
+                        input_html: { autocomplete: "current-password" },
+                        input_html: {class: 'form-control' } %>
+          </div>
+
+          <div class="form-actions">
+            <%= f.button :submit, "Update", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="panel-footer">
+        <h3>Cancel my account</h3>
+
+        <p>Unhappy? <%= link_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></p>
+
+        <%= link_to "Back", :back %>
+      </div>
+    </div>
+  </div>
+</div>
+```
+>pin의 수정 페이지를 바꾸기 위해 app/views/pins/edit.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+.col-md-6.col-md-offset-3
+  .row
+    .panel.panel-default
+      .panel-heading
+        %h1 Edit Pin
+      .panel-body
+        %strong.center Current Image
+        %br
+        = image_tag @pin.image.url(:medium)
+        %br
+        = render 'form'
+```
+>Sign Up 페이지를 바꾸기 위해 app/views/devise/registrations/new.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<div class="col-md-6 col-md-offset-3">
+  <div class="row">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2>Sign Up</h2>
+      </div>
+      <div class="panel-body">
+        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+          <%= f.error_notification %>
+
+          <div class="form-inputs">
+            <div class="form-group">
+              <%= f.input :email,
+                          required: true,
+                          autofocus: true,
+                          input_html: { autocomplete: "email" },
+                          input_html: {class: 'form-control' } %>
+            </div>
+            <div class="form-group">
+              <%= f.input :password,
+                          required: true,
+                          hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
+                          input_html: { autocomplete: "new-password" },
+                          input_html: {class: 'form-control' } %>
+            </div>
+            <div class="form-group">
+              <%= f.input :password_confirmation,
+                          required: true,
+                          input_html: { autocomplete: "new-password" },
+                          input_html: {class: 'form-control' } %>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <%= f.button :submit, "Sign up", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+
+        <%= render "devise/shared/links" %>
+      </div>
+    </div>
+  </div>
+</div>
+```
+>Sign In 페이지를 바꾸기 위해 app/views/devise/sessions/new.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<div class="col-md-6 col-md-offset-3">
+  <div class="row">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2>Sign In</h2>
+      </div>
+
+      <div class="panel-body">
+        <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+          <div class="form-inputs">
+            <%= f.input :email,
+                        required: false,
+                        autofocus: true,
+                        input_html: { autocomplete: "email" } %>
+            <%= f.input :password,
+                        required: false,
+                        input_html: { autocomplete: "current-password" } %>
+            <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+          </div>
+
+          <div class="form-actions">
+            <%= f.button :submit, "Log in", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+
+        <%= render "devise/shared/links" %>
+      </div>
+    </div>
+  </div>
+</div>
 ```
