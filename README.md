@@ -2322,3 +2322,56 @@ textarea {
               = link_to "Edit", edit_pin_path, class: "btn btn-default"
               = link_to "Delete", pin_path, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-default"
 ```
+- 2020-11-03
+>투표 기능을 추가하기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'acts_as_votable', '~> 0.12.1'
+```
+``` terminal
+$ sudo gem install acts_as_votable
+```
+>acts_as_votable을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate acts_as_votable:migration
+$ sudo rake db:migrate
+```
+>app/models/pin.rb 파일에 다음을 추가합니다.
+``` rb
+acts_as_votable
+```
+>config/routes.rb 파일을 다음과 같이 수정해줍니다.
+``` rb
+# before
+resources :pins
+# after
+resources :pins do
+  member do
+    put "like", to: "pins#upvote"
+  end
+end
+```
+>app/contorllers/pins_controller.rb 파일을 다음과 같이 수정하고 추가해줍니다.
+``` rb
+# before
+before_action :find_pin, only: [:show, :edit, :update, :destroy]
+# after
+before_action :find_pin, only: [:show, :edit, :update, :destroy, :upvote]
+```
+``` rb
+def upvote
+  @pin.upvote_by current_user
+  redirect_back(fallback_location: root_path)
+end
+```
+>app/views/pins/show.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+<!-- before -->
+.btn-group.pull-right
+  = link_to "Edit", edit_pin_path, class: "btn btn-default"
+<!-- after -->
+.btn-group.pull-right
+  = link_to like_pin_path(@pin), method: :put, class: "btn btn-default" do
+    %span.glyphicon.glyphicon-heart
+      = @pin.get_upvotes.size
+  = link_to "Edit", edit_pin_path, class: "btn btn-default"
+```
