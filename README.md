@@ -6,7 +6,8 @@
 Chapter 01. [Reddit Clone](#reddit-clone)    
 Chapter 02. [Blog](#blog)    
 Chapter 03. [Recipe Box](#recipe-box)    
-Chapter 04. [Pinterest Clone](#pinterest-clone)
+Chapter 04. [Pinterest Clone](#pinterest-clone)    
+Chapter 05. [Movie Review](#moview-review)    
 
 ---
 
@@ -2547,4 +2548,87 @@ before_action :authenticate_user!, except: [:index, :show]
     </div>
   </div>
 </div>
+```
+---
+
+## Moview Review
+- 2020-11-08
+>Moive를 생성하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate scaffold Movie title:string description:text movie_length:string director:string rating:string
+$ sudo rake db:migrate
+```
+>User를 추가해주기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'devise', '~> 4.7', '>= 4.7.3'
+```
+``` terminal
+$ sudo gem install devise
+$ sudo rails generate devise:install
+```
+>config/environments/development.rb 파일에 다음을 추가해줍니다.
+``` rb
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+>config/routes.rb 파일에 경로를 추가해줍니다.
+``` rb
+root 'movies#index'
+```
+>app/views/layouts/application.html.erb 파일에 다음을 추가해줍니다.
+``` erb
+<!-- before -->
+<body>
+  <%= yield %>
+</body>
+<!-- after -->
+<body>
+  <% flash.each do |name,msg| %>
+    <%= content_tag(:div, msg, class: "alert alert-info") %>
+  <% end %>
+  <%= yield %>
+</body>
+```
+>views를 생성하기위해 다음과 같이 입력해줍니다.    
+>User를 생성하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate devise:views
+```
+``` terminal
+$ sudo rails generate devise User
+$ sudo rake db:migrate
+```
+>movie에 user_id를 추가해줍니다.
+``` terminal
+$ sudo rails generate migration add_user_id_to_movies user_id:integer
+$ sudo rake db:migrate
+```
+>로그인을 하지 않으면 index와 show만 볼 수 있도록 app/controllers/movies_controller.rb 파일을 수정해줍니다.
+``` rb
+before_action :authenticate_user!, except: [:index, :show]
+# before
+@movie = Movie.new
+# 중략
+@movie = Movie.new(movie_params)
+# after
+@movie = current_user.movies.build
+# 중략
+@movie = current_user.movies.build(movie_params)
+```
+>app/models/movie.rb 파일에 다음을 추가합니다.    
+>app/models/user.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :user
+```
+``` rb
+has_many :movies
+```
+>User_id 가 없는 Moive에 레일즈 콘솔을 이용해서 Update 해줍니다.
+``` terminal
+$ sudo rails c
+$ @movie = Movie.first
+$ @movie.user_id = 1
+$ @movie.save
+$ @movie = Movie.second
+$ @movie.user_id = 1
+$ @movie.save
 ```
