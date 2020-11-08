@@ -2632,3 +2632,54 @@ $ @movie = Movie.second
 $ @movie.user_id = 1
 $ @movie.save
 ```
+>paperclip을 설치하기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'paperclip', '~> 6.1'
+```
+``` terminal
+$ sudo gem install paperclip
+```
+>app/models/movie.rb 파일에 다음을 추가해줍니다.
+``` rb
+has_attached_file :image, styles: { medium: "400x600>" }
+validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
+```
+>paperclip을 생성하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate paperclip movie image
+$ sudo rake db:migrate
+```
+>app/controllers/movies_controller.rb 파일에 다음을 추가합니다.
+``` rb
+# before
+params.require(:movie).permit(:title, :description, :movie_length, :director, :rating)
+# after
+params.require(:movie).permit(:title, :description, :movie_length, :director, :rating, :image)
+```
+>app/views/movies/_form.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+</div>
+
+<div class="actions">
+<!-- after -->
+</div>
+
+<div class="field">
+  <%= form.label :image %>
+  <%= form.file_field :image %>
+</div>
+
+<div class="actions">
+```
+>app/views/movies/show.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<!-- before -->
+<p id="notice"><%= notice %></p>
+<!-- after -->
+<%= image_tag @movie.image.url(:medium) %>
+```
+>app/views/movies/index.html.erb 파일에 다음을 추가합니다.
+``` erb
+<td><%= image_tag movie.image.url(:medium) %></td>
+```
