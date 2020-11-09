@@ -2683,3 +2683,136 @@ params.require(:movie).permit(:title, :description, :movie_length, :director, :r
 ``` erb
 <td><%= image_tag movie.image.url(:medium) %></td>
 ```
+- 2020-11-09
+>부트스트랩 스타일을 적용하기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'bootstrap-sass', '~> 3.4', '>= 3.4.1'
+```
+``` terminal
+$ sudo gem install bootstrap-sass
+```
+>app/assets/stylesheets/application.css 파일을 application.scss 파일로 변경한 다음 다음을 추가해줍니다.
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+>app/javascript/packs/application.js 파일에 다음을 추가해줍니다.
+``` js
+require("jquery")
+require("bootstrap-sprockets")
+```
+>app/views/layouts/application.html.erb 파일을 다음과 같이 수정해줍니다.    
+``` erb
+<!-- before -->
+<body>
+  <% flash.each do |name,msg| %>
+<!-- after -->
+<body>
+  <%= render 'layouts/header' %>
+  <% flash.each do |name,msg| %>
+```
+>app/views/layouts/ 폴더에 _header.html.erb 파일을 추가하고 [다음](https://github.com/mackenziechild/movie_review/blob/master/app/views/layouts/_header.html.erb)을 추가합니다.    
+>하단 form_tag 부분은 다음과 같이 수정해줍니다.
+``` erb
+<form class="navbar-form navbar-right" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Search">
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+```
+>app/views/movies/index.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<% if !user_signed_in? %>
+  <div class="jumbotron">
+    <h1>Your Favorite Movies Reviewed</h1>
+    <p>Hashtag hoodie mumblecore selfies. Authentic keffiyeh leggings Kickstarter, narwhal jean shorts XOXO Vice Austin cardigan. Organic drinking vinegar freegan pickled.</p>
+    <p><%= link_to "Sign Up To Write A Review", new_user_registration_path, class: "btn btn-primary btn-lg" %></p>
+  </div>
+<% end %>
+<div class="row">
+  <% @movies.each do |movie| %>
+    <div class="col-sm-6 col-md-3">
+      <div class="thumbnail">
+        <%= link_to (image_tag movie.image.url(:medium), class: 'image'), movie %>
+      </div>
+    </div>
+  <% end %>
+</div>
+```
+>app/views/layouts/application.html.erb 파일에 다음을 추가합니다.
+``` erb
+<!-- before -->
+<%= render 'layouts/header' %>
+<% flash.each do |name,msg| %>
+  <%= content_tag(:div, msg, class: "alert alert-info") %>
+<% end %>
+<%= yield %>
+<!-- after -->
+<%= render 'layouts/header' %>
+<div class="container">
+  <% flash.each do |name,msg| %>
+    <%= content_tag(:div, msg, class: "alert alert-info") %>
+  <% end %>
+  <%= yield %>
+</div>
+```
+>app/assets/stylesheets/scaffolds.scss 파일을 삭제합니다.    
+>app/views/movies/show.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-4">
+        <%= image_tag @movie.image.url(:medium) %>
+        <div class="table-responsive">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><strong>Title:</strong></td>
+                <td><%= @movie.title %></td>
+              </tr>
+              <tr>
+                <td><strong>Description:</strong></td>
+                <td><%= @movie.description %></td>
+              </tr>
+              <tr>
+                <td><strong>Movie length:</strong></td>
+                <td><%= @movie.movie_length %></td>
+              </tr>
+              <tr>
+                <td><strong>Director:</strong></td>
+                <td><%= @movie.director %></td>
+              </tr>
+              <tr>
+                <td><strong>Rating:</strong></td>
+                <td><%= @movie.rating %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= link_to 'Edit', edit_movie_path(@movie) %> |
+<%= link_to 'Back', movies_path %>
+```
+>app/assets/stylesheets/application.scss 파일에 다음을 추가합니다.
+``` scss
+body {
+	background: #AA4847;
+}
+
+.review_title {
+	margin: 0 0 20px 0;
+}
+.reviews {
+	padding: 15px 0;
+	border-bottom: 1px solid #EAEAEA;
+	.star-rating {
+		padding-bottom: 8px;
+	}
+}
+```
