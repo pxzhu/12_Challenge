@@ -2816,3 +2816,30 @@ body {
 	}
 }
 ```
+- 2020-11-10
+>Review 스카폴드를 생성하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate scaffold Review rating:integer comment:text
+$ sudo rake db:migrate
+```
+>review에 user_id를 추가하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate migration add_user_id_to_reviews user_id:integer
+$ sudo rake db:migrate
+```
+>app/models/review.rb 파일에 다음을 추가합니다.    
+>app/models/user.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :user
+```
+``` rb
+has_many :reviews, dependent: :destroy
+```
+>app/controllers/reviews_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+before_action :authenticate_user!
+# 중략
+# @review = Review.new(review_params) 하단
+@review.user_id = current_user.id
+```
+>app/views/reviews/ 폴더의 index.html.erb, index.json.jbuilder, show.html.erb, show.json.jbuilder를 삭제해줍니다.
