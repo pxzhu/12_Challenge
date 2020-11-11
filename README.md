@@ -2843,3 +2843,159 @@ before_action :authenticate_user!
 @review.user_id = current_user.id
 ```
 >app/views/reviews/ 폴더의 index.html.erb, index.json.jbuilder, show.html.erb, show.json.jbuilder를 삭제해줍니다.
+- 2020-11-11
+>movie에 review를 연결시켜줍니다.
+``` terminal
+$ sudo rails generate migration add_movie_id_to_reviews movie_id:integer
+$ sudo rake db:migrate
+```
+>app/models/movie.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :reviews
+```
+>app/models/review.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :movie
+```
+>app/views/reviews/_form.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+<%= form_with(model: review, local: true) do |form| %>
+<!-- after -->
+<%= form_with(model: [ @movie, @review ], local: true) do |form| %>
+```
+>config/routes.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+resources :reviews
+devise_for :users
+resources :movies
+# after
+devise_for :users
+  
+resources :movies do
+  resources :reviews, except: [:show, :index]
+end
+```
+>app/controllers/reviews_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# 추가
+before_action :set_movie
+# 중략
+# @review.user_id = current_user.id 하단
+@review.movie_id = @movie.id
+# 중략
+# before
+format.html { redirect_to @review, notice: 'Review was successfully created.' }
+# after
+format.html { redirect_to @movie, notice: 'Review was successfully created.' }
+# 중략
+# private의 set_review 하단
+def set_movie
+  @movie = Movie.find(params[:movie_id])
+end
+```
+>app/views/reviews/new.html.erb 파일과 edit.html.erb 파일을 다음과 같이 수정합니다.    
+``` erb
+<!-- before -->
+<%= link_to 'Back', reviews_path %>
+<!-- after -->
+<%= link_to 'Back', movie_path(@movie) %>
+```
+>app/views/movies/show.html.erb 파일을 다음을 추가합니다.
+``` erb
+<!-- 생략 -->
+<!-- </table> 하단 -->
+    <%= link_to "Write a Review", new_movie_review_path(@movie) %>
+  </div>
+</div>
+<div class="col-md-7 col-md-offset-1">
+  <h1 class="review_title"><%= @movie.title %></h1>
+  <p><%= @movie.description %></p>
+
+  <% if @reviews.blank? %>
+    <h3>No reviews just yet, would you like to add the first!</h3>
+    <%= link_to "Write Review", new_movie_review_path(@movie), class: "btn btn-danger" %>
+  <% else %>
+    <% @reviews.each do |review| %>
+      <div class="reviews">
+        <p><%= review.rating %></p>
+        <p><%= review.comment %></p>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+```
+>app/controllers/moviews_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+def show 
+end
+# after
+def show
+  @reviews = Review.where(movie_id: @movie.id).order("created_at DESC")
+end
+```
+>app/assets/stylesheets/scaffolds.scss 파일을 삭제합니다.    
+>app/views/movies/show.html.erb 파일을 다음과 같이 수정한다.
+``` erb
+<!-- before -->
+<p><%= review.rating %></p>
+<!-- after -->
+<div class="star-rating" data-score= <%= review.rating %> ></div>
+```
+``` erb
+<!-- 최하단 -->
+<script>
+  $('.star-rating').raty({
+    path: '/assets/images',
+    readOnly: true,
+    score: function() {
+      return $(this).attr('data-score');
+    }
+  });
+</script>
+```
+>app/views/reviews/_form.html.erb 파일의 다음을 수정합니다.
+``` erb
+<!-- before -->
+<<%= form.label :rating %>
+    <%= form.number_field :rating %>>
+<!-- after -->
+<div id="star-rating"></div>
+```
+``` erb
+<!-- 최하단 -->
+<script>
+  $('#star-rating').raty({
+    path: '/assets/',
+    scoreName: 'review[rating]'
+  });
+</script>
+```
+>app/javascript/packs/application.js 파일에 다음을 추가합니다.
+``` js
+require("jquery.raty")
+```
+``` js
+// 최하단
+//= require jquery.raty
+```
+>raty가 정상 동작하지 않아 4시간 가량 찾아봤으나 해결하지 못하였다.    
+>app/controllers/movies_controller.rb 파일에 다음을 추가합니다.
+``` rb
+# def show
+#   @reviews ...
+    if @review.blank?
+      @avg_review = 0
+    else
+      @avg_review = @reviews.average(:rating).round(2)
+    end
+```
+>app/views/movies/show.html.erb 파일에 다음을 추가합니다.
+``` erb
+<!-- 생략 -->
+<%= image_tag @movie.image.url(:medium) %>
+<div class="star-rating" data-score= <%= @avg_review %>></div>
+<em><%= "#{@reviews.length} reviews" %></em>
+```
