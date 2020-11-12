@@ -2999,3 +2999,6 @@ require("jquery.raty")
 <div class="star-rating" data-score= <%= @avg_review %>></div>
 <em><%= "#{@reviews.length} reviews" %></em>
 ```
+- 2020-11-12
+>Xcode 버전 문제로 movie_review를 더이상 진행할 수 없어서 해당 프로젝트는 일시 중단합니다.
+---
