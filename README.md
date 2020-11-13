@@ -8,6 +8,7 @@ Chapter 02. [Blog](#blog)
 Chapter 03. [Recipe Box](#recipe-box)    
 Chapter 04. [Pinterest Clone](#pinterest-clone)    
 Chapter 05. [Movie Review](#moview-review)    
+Chapter 06. [Todo](#Todo)
 
 ---
 
@@ -3002,3 +3003,5 @@ require("jquery.raty")
 - 2020-11-12
 >Xcode 버전 문제로 movie_review를 더이상 진행할 수 없어서 해당 프로젝트는 일시 중단합니다.
 ---
+
+## Todo
