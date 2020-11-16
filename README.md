@@ -3005,3 +3005,92 @@ require("jquery.raty")
 ---
 
 ## Todo
+- 2020-11-16
+>todo_list 스카폴드를 다음과 같이 만들어줍니다.
+``` terminal
+$ sudo rails generate scaffold todo_list title:string description:text
+$ sudo rake db:migrate
+```
+>config/routes.rb 파일을 수정하여 todo_lists를 index 페이지로 바꿔줍니다.
+``` rb
+root "todo_lists#index"
+```
+>모델을 생성해줍니다.
+``` terminal
+$ sudo rails generate model todo_item content:string todo_list:references
+$ sudo rake db:migrate
+```
+>모델을 연결해 주기 위해 app/models/todo_list.rb 파일에 다음을 추가해줍니다.    
+>config/routes.rb 파일을 다음과 같이 수정해줍니다.
+``` rb
+has_many :todo_items
+```
+``` rb
+# before
+resources :todo_lists
+# after
+resources :todo_lists do
+  resources :todo_items
+end
+```
+>컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller todo_items
+```
+>app/controllers/todo_items_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+before_action :set_todo_list
+
+def create
+  @todo_item = @todo_list.todo_items.create(todo_item_params)
+
+  redirect_to @todo_list
+end
+
+private
+
+def set_todo_list
+  @todo_list = TodoList.find(params[:todo_list_id])
+end
+
+def todo_item_params
+  params[:todo_item].permit(:content)
+end
+```
+>app/views/todo_items/_form.html.erb 파일을 생성하고 다음을 추가합니다.    
+>app/views/todo_items/_todo_item.html.erb 파일을 생성하고 다음을 추가합니다.
+``` erb
+<%= form_for([@todo_list, @todo_list.todo_items.build]) do |f| %>
+  <%= f.text_field :content, placeholder: "New Todo" %>
+  <%= f.submit %>
+<% end %>
+```
+``` erb
+<p><%= todo_item.content %></p>
+```
+>app/views/todo_lists/show.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<div id="todo_items_wrapper">
+  <%= render @todo_list.todo_items %>
+  <div id="form">
+    <%= render "todo_items/form" %>
+  </div>
+</div>
+<!-- <%= link_to 'Edit'... -->
+```
+>app/views/todo_items>_todo_item.html.erb 파일에 다음을 추가해줍니다.
+``` erb
+<%= link_to "Delete", todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } %>
+```
+>app/controllers/todo_items_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def destory
+  @todo_item = @todo_list.todo_items.find(params[:id])
+  if @todo_item.destory
+    flash[:success] = "Todo List item was deleted."
+  else
+    flash[:error] = "Todo List item could not be deleted."
+  end
+  redirect_to @todo_list
+end
+```
