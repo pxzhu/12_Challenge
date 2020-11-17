@@ -3094,3 +3094,81 @@ def destory
   redirect_to @todo_list
 end
 ```
+- 2020-11-17
+>시간을 표시하기위해 다음과 같이 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate migration add_completed_at_to_todo_items completed_at:datetime
+$ sudo rake db:migrate
+```
+>config/routes.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+resources :todo_items
+# after
+resources :todo_items do
+  member do
+    patch :complete
+  end
+end
+```
+>app/views/todo_items/_todo_item.html.erb 파일에 다음을 추가해줍니다.
+``` erb
+<%= link_to "Mark as Complete", complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch %>
+```
+>app/controllers/todo_items_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before 
+before_action :set_todo_list
+# after
+before_action :set_todo_list
+before_action :set_todo_item, except: [:create]
+# 중략
+# before
+def destroy
+  @todo_item = @todo_list.todo_items.find(params[:id])
+  if @todo_item.destroy
+# after
+def destroy
+  if @todo_item.destroy
+# 중략
+def complete
+  @todo_item.update_attribute(:completed_at, Time.now)
+  redirect_to @todo_list, notice: "Todo item completed"
+end
+# 중략
+def set_todo_item
+  @todo_item = @todo_list.todo_items.find(params[:id])
+end
+```
+>app/views/todo_items/_todo_item.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<div class="row clearfix">
+  <% if todo_item.completed? %>
+    <div class="complete">
+      <%= link_to "Mark as Complete", complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch %>
+    </div>
+    <div class="todo_item">
+      <p style="opacity: 0.4;"><strike><%= todo_item.content %></strike></p>
+    </div>
+    <div class="trash">
+      <%= link_to "Delete", todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } %>
+    </div>
+    <% else %>
+      <div class="complete">
+        <%= link_to "Mark as Complete", complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch %>
+      </div>
+      <div class="todo_item">
+        <p><%= todo_item.content %></p>
+      </div>
+      <div class="trash">
+        <%= link_to "Delete", todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } %>
+      </div>
+    <% end %>
+</div>
+```
+>app/models/todo_item.rb 파일에 다음을 추가해줍니다.
+``` rb
+def completed?
+  !completed_at.blank?
+end
+```
