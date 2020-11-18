@@ -3172,3 +3172,108 @@ def completed?
   !completed_at.blank?
 end
 ```
+- 2020-11-18
+>app/assets/stylesheets/application.css 파일을 application.scss로 바꿔주고, 나머지 scss 파일은 삭제한다.    
+>[여기](https://github.com/mackenziechild/Todo-App/blob/master/app/assets/stylesheets/application.css.scss)에서 복사해서 app/assets/stylesheets/application.scss 파일에 붙여넣는다.    
+>app/views/layouts/application.html.erb 파일에 다음을 추가한다.
+``` erb
+<div class="container">
+  <%= yield %>
+</div>
+```
+>app/views/todo_lists/index.html.erb 파일을 다음과 같이 바꿔줍니다.
+``` erb
+<% @todo_lists.each do |todo_list| %>
+  <div class="index_row clearfix">
+    <h2 class="todo_list_title"><%= link_to todo_list.title, todo_list %></h2>
+    <p class="todo_list_sub_title"><%= todo_list.description %></p>
+  </h2>
+<% end %>
+
+<div class="links">
+  <%= link_to "New Todo List", new_todo_list_path %>
+</div>
+```
+>app/views/layouts/application.html.erb 파일에 다음을 추가합니다.
+``` erb
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+```
+>app/views/todo_items/_todo_item.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<!-- before -->
+<%= link_to "Mark as Complete", complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch %>
+<!-- 중략 -->
+<%= link_to "Delete", todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } %>
+<!-- 중략 -->
+<%= link_to "Mark as Complete", complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch %>
+<!-- 중략 -->
+<%= link_to "Delete", todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } %>
+<!-- after -->
+<%= link_to complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch do %>
+  <i style="opacity: 0.4;" class="fa fa-check"></i>
+<% end %>
+<!-- 중략 -->
+<%= link_to todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } do %>
+  <i class="fa fa-trash"></i>
+<% end %>
+<!-- 중략 -->
+<%= link_to complete_todo_list_todo_item_path(@todo_list, todo_item.id), method: :patch do %>
+  <i class="fa fa-check"></i>
+<% end %>
+<!-- 중략 -->
+<%= link_to todo_list_todo_item_path(@todo_list, todo_item.id), method: :delete, data: { confirm: "Are you sure?" } do %>
+  <i class="fa fa-trash"></i>
+<% end %>
+```
+>app/views/todo_lists/show.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<p id="notice"><%= notice %></p>
+
+<h2 class="todo_list_title"><%= @todo_list.title %></h2>
+<p class="todo_list_sub_title"><%= @todo_list.description %></p>
+
+<div id="todo_items_wrapper">
+  <%= render @todo_list.todo_items %>
+  <div id="form">
+    <%= render "todo_items/form" %>
+  </div>
+</div>
+
+<div class="links">
+  <%= link_to 'Edit', edit_todo_list_path(@todo_list) %> |
+  <%= link_to 'Delete', todo_list_path(@todo_list), method: :delete, data: { confirm: "Are you sure?" } %> |
+  <%= link_to 'Back', todo_lists_path %>
+</div>
+```
+>app/controllers/todo_lists_controller.rb 파일의 다음을 수정합니다.
+``` rb
+# before
+format.html { redirect_to todo_lists_url, notice: 'Todo list was successfully destroyed.' }
+# after
+format.html { redirect_to root_url, notice: 'Todo list was successfully destroyed.' }
+```
+>app/views/todo_lists>new.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<h1 class="todo_list_title">New Todo List</h1>
+
+<div class="forms">
+  <%= render 'form', todo_list: @todo_list %>
+</div>
+
+<div class="links">
+  <%= link_to 'Back', todo_lists_path %>
+</div>
+```
+>app/views/todo_lists/edit.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+<h1 class="todo_list_title">Editing Todo List</h1>
+
+<div class="forms">
+  <%= render 'form', todo_list: @todo_list %>
+</div>
+
+<div class="links">
+  <%= link_to 'Cancle', todo_lists_path %>
+</div>
+```
