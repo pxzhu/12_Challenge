@@ -8,7 +8,8 @@ Chapter 02. [Blog](#blog)
 Chapter 03. [Recipe Box](#recipe-box)    
 Chapter 04. [Pinterest Clone](#pinterest-clone)    
 Chapter 05. [Movie Review](#moview-review)    
-Chapter 06. [Todo](#Todo)
+Chapter 06. [Todo](#Todo)    
+Chapter 07. [Jobs Board](#jobs-board)
 
 ---
 
@@ -3277,3 +3278,6 @@ format.html { redirect_to root_url, notice: 'Todo list was successfully destroye
   <%= link_to 'Cancle', todo_lists_path %>
 </div>
 ```
+---
+
+## Jobs-Board
