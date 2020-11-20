@@ -3281,3 +3281,174 @@ format.html { redirect_to root_url, notice: 'Todo list was successfully destroye
 ---
 
 ## Jobs-Board
+- 2020-11-20
+>job 모델을 생성하고 마이그레이션합니다.
+``` terminal
+$ sudo rails generate model job title:string description:text company:string url:string
+$ sudo rake db:migrate
+```
+>jobs 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller jobs
+```
+>app/controllers/jobs_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+def index
+end
+```
+>config/routes.rb 파일에 다음을 추가해줍니다.
+``` rb
+resources :jobs
+root 'jobs#index'
+```
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+gem 'haml', '~> 5.2'
+gem 'bootstrap-sass', '~> 3.4', '>= 3.4.1'
+```
+``` terminal
+$ sudo gem install simple_form
+$ sudo gem install haml
+$ sudo gem install bootstrap-sass
+```
+>app/assets/stylesheets/application.css 파일을 application.scss 파일로 바꾸고 다음을 추가합니다.
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+>app/javascript/packs/application.js 파일에 다음을 추가해줍니다.
+``` js
+require("bootstrap-sprockets")
+```
+>simple_form을 bootstrap을 이용하여 설치해줍니다.
+``` terminal
+$ sudo rails generate simple_form:install --bootstrap
+```
+>app/views/jobs/index.html.haml을 생성하고 다음을 추가합니다.
+``` haml
+%h1 This is INDEX page
+```
+>app/controllers/jobs_controller.rb 파일에 다음을 추가합니다.
+``` rb
+class JobsController < ApplicationController
+  before_action :find_job, only: [:show, :edit, :update, :destroy]
+  def index
+  end
+
+  def show
+  end
+
+  def new
+    @job = Job.new
+  end
+
+  def create
+    @job = Job.new(jobs_params)
+
+    if @job.save
+      redirect_to @job
+    else
+      render "New"
+    end
+  end
+
+  def edit
+  end
+
+  def update
+  end
+
+  def destroy
+  end
+
+  private
+
+  def jobs_params
+    params.require(:job).permit(:title, :description, :company, :url)
+  end
+
+  def find_job
+    @job = Job.find(params[:id])
+  end
+
+end
+```
+>app/views/jobs/new.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 New Job
+
+= render 'form'
+
+= link_to "Back", root_path
+```
+>app/views/jobs/_form.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+= simple_form_for(@job, html: { class: 'form-horizontal' }) do |f|
+  = f.input :title, label: "Job Title"
+  = f.input :description, label: "Job Description"
+  = f.input :company, label: "Your Company"
+  = f.input :url, label: "Link to Job"
+  %br
+  = f.button :submit
+```
+>app/views/jobs/show.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1= @job.title
+%p= @job.description
+%p= @job.company
+
+= link_to "Home", root_path
+```
+>app/controllers/jobs_controller.rb 파일의 index에 다음을 추가합니다.
+``` rb
+def index
+  @jobs = Job.all.order("created_at DESC")
+end
+```
+>app/views/jobs/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+- @jobs.each do |job|
+  %h2= job.title
+  %p= job.company
+
+= link_to "New Job", new_job_path
+```
+>app/controllers/jobs_controller.rb 파일에 update와 destroy를 수정합니다.
+``` rb
+def update
+  if @job.update(jobs_params)
+    redirect_to @job
+  else
+    render "Edit"
+  end
+end
+
+def destroy
+  @job.destroy
+  redirect_to root_path
+end
+```
+>app/views/jobs/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "Edit", edit_job_path(@job)
+```
+>app/views/jobs/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+%h2= job.title
+<!-- after -->
+%h2= link_to job.title, job
+```
+>app/views/jobs/edit.html.haml 파일을 만들고 다음을 추가합니다.
+``` haml
+%h1 Edit Job
+
+= render 'form'
+
+= link_to "Back", root_path
+```
+>app/views/jobs/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "Delete", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }
+```
