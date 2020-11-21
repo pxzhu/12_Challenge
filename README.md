@@ -3452,3 +3452,68 @@ end
 ``` haml
 = link_to "Delete", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }
 ```
+- 2020-11-21
+>category 모델을 생성하고 마이그레이션합니다.
+``` terminal
+$ sudo rails generate model category name:string
+$ sudo rake db:migrate
+```
+>jobs에 category를 추가해줍니다.
+``` terminal
+$ sudo rails generate migration add_category_id_to_jobs category_id:integer
+$ sudo rake db:migrate
+```
+>app/models/job.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :category
+```
+>app/models/category.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :jobs
+```
+>레일즈 콘솔을 이용해 카테고리를 생성해줍니다.
+``` terminal
+> Category.create(name: "Full Time")
+> Category.create(name: "Part Time")
+> Category.create(name: "Freelance")
+> Category.create(name: "Consulting")
+```
+>app/views/jobs/_form.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+= f.collection_select :category_id, Category.all, :id, :name, { promt: "Choose a category" }
+```
+>app/controllers/jobs_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+params.require(:job).permit(:title, :description, :company, :url)
+# after
+params.require(:job).permit(:title, :description, :company, :url, :category_id)
+```
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 변경하고 다음과 같이 수정합니다.
+``` haml
+!!!
+%html
+%head
+  %title Ruby on Rails Jobs
+  = csrf_meta_tags
+  = csp_meta_tag
+
+  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+  = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+
+%body
+  - Category.all.each do |category|
+    = link_to category.name, jobs_path(category: category.name)
+  = yield
+```
+>app/controllers/jobs_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+def index
+  if params[:category].blank?
+    @jobs = Job.all.order("created_at DESC")
+  else
+    @category_id = Category.find_by(name: params[:category]).id
+    @jobs = Job.where(category_id: @category_id).order("created_at DESC")
+  end
+end
+```
