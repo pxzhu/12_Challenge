@@ -3517,3 +3517,50 @@ def index
   end
 end
 ```
+- 2020-11-22
+>app/views/layouts/application.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- brfore -->
+%body
+  - Category.all.each do |category|
+    %li= link_to category.name, jobs_path(category: category.name)
+  = yield
+<!-- after -->
+%body
+  %nav.navbar.navbar-default
+    .container
+      .navbar-brand Rails Jobs
+      %ul.nav.navbar-nav
+        %li= link_to "All Jobs", root_path
+        - Category.all.each do |category|
+          %li= link_to category.name, jobs_path(category: category.name)
+      = link_to "New Job", new_job_path, class: "navbar-text navbar-right navbar-link"
+  .container
+    .col-md-6.col-md-offset-3
+      = yield
+```
+>app/assets/stylesheets/application.scss 파일에 [다음](https://github.com/mackenziechild/jobs_board/blob/master/app/assets/stylesheets/application.css.scss)을 복사하여 붙여넣어줍니다.    
+>index 페이지 스타일링을 위해 app/views/jobs/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+#jobs
+  - @jobs.each do |job|
+    .job
+      %h2= link_to job.title, job
+      %p= job.company
+```
+>app/views/jobs/show.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+#jobs
+  .job
+    %h2= @job.title
+    %p= @job.description
+    %p= @job.company
+    %button.btn.btn-default= link_to "Apply for Job", @job.url
+
+#links
+  = link_to "Back", root_path, class: "btn btn-sm btn-default"
+  = link_to "Edit", edit_job_path(@job), class: "btn btn-sm btn-default"
+  = link_to "Delete", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-default"
+```
+>app/views/jobs/_form.html.haml 파일은 수정하지 않아도 된다.
+---
