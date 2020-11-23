@@ -9,7 +9,8 @@ Chapter 03. [Recipe Box](#recipe-box)
 Chapter 04. [Pinterest Clone](#pinterest-clone)    
 Chapter 05. [Movie Review](#moview-review)    
 Chapter 06. [Todo](#Todo)    
-Chapter 07. [Jobs Board](#jobs-board)
+Chapter 07. [Jobs Board](#jobs-board)    
+Chapter 08. [Workout Log](#workout-log)
 
 ---
 
@@ -3564,3 +3565,5 @@ end
 ```
 >app/views/jobs/_form.html.haml 파일은 수정하지 않아도 된다.
 ---
+
+## Workout Log
