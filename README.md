@@ -3567,3 +3567,23 @@ end
 ---
 
 ## Workout Log
+- 2020-11-23
+>workout 모델을 생성하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate model workout date:datetime workout:string mood:string length:string
+$ sudo rake db:migrate
+```
+>workouts 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller workouts
+```
+>workouts의 경로를 index 페이지로 변경하기위해 config/routes.rb 파일에 다음을 추가합니다.
+``` rb
+resources :workout
+root 'workouts#index'
+```
+>app/controllers/workouts_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def index
+end
+```
