@@ -3579,11 +3579,100 @@ $ sudo rails generate controller workouts
 ```
 >workouts의 경로를 index 페이지로 변경하기위해 config/routes.rb 파일에 다음을 추가합니다.
 ``` rb
-resources :workout
+resources :workouts
 root 'workouts#index'
 ```
 >app/controllers/workouts_controller.rb 파일에 다음을 추가합니다.
 ``` rb
 def index
 end
+```
+- 2020-11-24
+>Genfile에 다음을 추가하여 haml,simple_form, bootstrap-sass를 설치합니다.
+``` terminal
+$ sudo gem install haml
+$ sudo gem install simple_form
+$ sudo gem install bootstrap-sass
+```
+>app/assets/stylesheets/application.css 파일을 application.scss 파일로 변경하고 다음을 추가합니다.
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+>app/javascript/packs/application.js 파일에 다음을 추가합니다.
+``` js
+require("jquery")
+require("bootstrap-sprocket")
+```
+>simple_form을 사용하기위해 설치해줍니다.
+``` terminal
+$ sudo rails generate simple_form:install --bootstrap
+```
+>index 페이지가 잘 동작하는지 확인하기 위해 app/views/workouts/index.html.haml 파일을 생성하여 다음을 추가합니다.
+``` haml
+%h1 This is the Workouts#Index Placeholder
+```
+>app/controllers/workouts_controller.rb 파일에 다음을 추가합니다.
+``` rb
+before_action :find_workout, only: [:show, :edit, :update, :destroy]
+def show
+end
+
+def new
+  @workout = Workout.new
+end
+
+def create
+  @workout = Workout.new(workout_params)
+  if @workout.save
+    redirect_to @workout
+  else
+    render 'new'
+  end
+end
+
+def edit
+end
+
+def update
+end
+
+def destroy
+end
+
+private
+
+def workout_params
+  params.require(:workout).permit(:date, :workout, :mood, :length)
+end
+
+def find_workout
+  @workout = Workout.find(params[:id])
+end
+```
+>app/views/workouts/_form.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+= simple_form_for(@workout, html: { class: 'form-horizontal' }) do |f|
+  = f.input :date, label: "Date"
+  = f.input :workout, label: "What area did you workout"
+  = f.input :mood, label: "How were you feeling?"
+  = f.input :length, label: "How long was the workout?"
+  %br
+  = f.button :submit
+```
+>app/views/workouts/new.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 New Workout
+
+= render 'form'
+
+= link_to "Cancle", root_path
+```
+>app/views/workouts/show.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+#workout
+  %p= @workout.date
+  %p= @workout.workout
+  %p= @workout.mood
+  %p= @workout.length
 ```
