@@ -3676,3 +3676,20 @@ end
   %p= @workout.mood
   %p= @workout.length
 ```
+- 2020-11-26
+>index 페이지에 workout을 표시하기 위하여 app/views/workouts/index.html.haml 파일에 다음과 같이 수정합니다.
+``` haml
+- @workouts.each do |workout|
+  %h2= link_to workout.date, workouts_path
+  %h3= workout.workout
+```
+>app/controllers/workouts_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+def index
+end
+# after
+def index
+  @workouts = Workout.all.order("created_at DESC")
+end
+```
