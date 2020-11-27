@@ -3693,3 +3693,42 @@ def index
   @workouts = Workout.all.order("created_at DESC")
 end
 ```
+- 2020-11-27
+>app/controllers/workouts_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+def update
+end
+
+def destroy
+end
+# after
+def update
+  if @workout.update(workout_params)
+    redirect_to @workout
+  else
+    render 'edit'
+  end
+end
+
+def destroy
+  @workout.destroy
+  redirect_to root_path
+end
+```
+>app/views/workouts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "Back", root_path
+| 
+= link_to "Edit", edit_workout_path(@workout)
+|
+= link_to "Delete", workout_path(@workout), method: :delete, data: { confirm: "Are you sure?" }
+```
+>app/views/workouts/edit.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 Edit Workout
+
+= render 'form'
+
+= link_to "Cancle", root_path
+```
