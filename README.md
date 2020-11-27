@@ -3732,3 +3732,24 @@ end
 
 = link_to "Cancle", root_path
 ```
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 변경하고 다음과 같이 수정합니다.
+``` haml
+!!!
+%html
+%head
+  %title Workout Log Application
+  = csrf_meta_tags
+  = csp_meta_tag
+
+  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+  = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+%body
+  %nav.navbar.navbar-default
+    .container
+      .navbar-header
+        = link_to "Workout Log", root_path, class: "navbar-brand"
+      .nav.navbar-nav.navbar-right
+        = link_to "New Workout", new_workout_path, class: "navbar navbar-link"
+  .container
+    = yield
+```
