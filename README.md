@@ -3753,3 +3753,59 @@ end
   .container
     = yield
 ```
+- 2020-11-28
+>exercise 모델을 생성하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate model exercise name:string sets:integer reps:integer workout:references
+$ sudo rake db:migrate
+```
+>app/models/workout.rb 파일에 다음을 추가해줍니다.
+``` rb
+has_many :exercises, dependent: :destroy
+```
+>config/routes.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+resources :workouts
+# after
+resources :workouts do
+  resources :exercises
+end
+```
+>exercises 컨트롤러를 생성합니다.
+``` terminal
+$ sudo rails generate controller exercises
+```
+>app/controllers/exercises_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def create
+  @workout = Workout.find(params[:workout_id])
+  @exercise = @workout.exercises.create(params[:exercise].permit(:name, :sets, :reps))
+
+  redirect_to workout_path(@workout)
+end
+```
+>app/views/exercises/_form.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+= simple_form_for([@workout, @workout.exercises.build]) do |f|
+  = f.input :name
+  = f.input :sets
+  = f.input :reps
+  %br
+  = f.button :submit
+```
+>app/views/exercises/_exercise.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%p= exercise.name
+%p= exercise.sets
+%p= exercise.reps
+```
+>app/views/workouts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+#exercises
+  %h2 Exercises
+  = render @workout.exercises
+
+  %h3 Add an exercise
+  = render "exercises/form"
+```
