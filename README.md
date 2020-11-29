@@ -3815,5 +3815,62 @@ end
 <!-- before -->
 %h2= link_to workout.date, workout
 <!-- after -->
-%h2= link_to workout.date.strftime("%A %B %d"), workout
+#index_workouts
+  - @workouts.each do |workout|
+    %h2= link_to workout.date.strftime("%A %B %d"), workout
+    %h3
+      %span Workout: 
+      = workout.workout
 ```
+>[여기](uigradients.com)에서 원하는 배경의 css 코드를 복사하여 app/assets/stylesheets/application.scss 파일에 추가하고 다음을 추가합니다.
+``` scss
+body {
+  /* code here */
+}
+
+.navbar-default {
+  background: rgba(250, 250, 250, 0.5);
+  -webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
+  box-shadow: 0 1px 1px 0 rgba(0,0,0,2);
+  border: none;
+  border-radius: 0;
+  .navbar-header {
+    .navbar-brand {
+      color: white;
+      font-size: 20px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+  }
+  .navbar-link {
+    line-height: 3.5;
+    color: rgb(158, 78, 98);
+  }
+}
+
+#index_workouts {
+  h2 {
+    margin-bottom: 0;
+    font-weight: 100;
+    a {
+      color: white;
+    }
+  }
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    span {
+      color: rgb(158, 78, 98);
+    }
+  }
+}
+```
+>app/views/layouts/application.html.haml 파일의 다음을 수정합니다.
+``` haml
+<!-- before -->
+= link_to "New Workout", new_workout_path, class: "navber navbar-link"
+<!-- after -->
+= link_to "New Workout", new_workout_path, class: "navbar-link"
+```
+---
