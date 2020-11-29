@@ -3809,3 +3809,11 @@ end
   %h3 Add an exercise
   = render "exercises/form"
 ```
+- 2020-11-29
+>app/views/workouts/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+%h2= link_to workout.date, workout
+<!-- after -->
+%h2= link_to workout.date.strftime("%A %B %d"), workout
+```
