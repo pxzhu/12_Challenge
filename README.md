@@ -3895,3 +3895,57 @@ $ sudo gem install bootstrap-sass
 $ sudo gem install devise
 $ sudo gem install simple_form
 ```
+>Article 모델과 컨트롤러를 생성하고 마이그레이션합니다.
+``` terminal
+$ sudo rails generate model Article title:string content:text
+$ sudo rails generate controller Articles
+$ sudo rake db:migrate
+```
+>app/controllers/articles_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def index
+end
+
+def new
+  @article = Article.new
+end
+
+def create
+  @article = Article.new(article_params)
+  if @article.save
+    redirect_to @article
+  else
+    render 'new'
+  end
+end
+
+private
+
+def article_params
+  params.require(:article).permit(:title, :content)
+end
+```
+>config/routes.rb 파일에 다음을 추가합니다.
+``` rb
+resources :articles
+root 'articles#index'
+```
+>app/views/articles/index.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 This is the articles#index placeholder
+```
+>app/views/articles/_form.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+= simple_form_for @article do |f|
+  = f.input :title
+  = f.input :content
+  = f.submit
+```
+>app/views/articles/new.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 New Article
+
+= render 'form'
+
+= link_to "Back", root_path
+```
