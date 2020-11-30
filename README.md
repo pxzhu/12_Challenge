@@ -10,8 +10,8 @@ Chapter 04. [Pinterest Clone](#pinterest-clone)
 Chapter 05. [Movie Review](#moview-review)    
 Chapter 06. [Todo](#Todo)    
 Chapter 07. [Jobs Board](#jobs-board)    
-Chapter 08. [Workout Log](#workout-log)
-Chapter 09. [Wikipedia Clone](#wikipedia-clone)
+Chapter 08. [Workout Log](#workout-log)    
+Chapter 09. [Wikipedia Clone](#wikipedia-clone)    
 
 ---
 
@@ -3881,4 +3881,17 @@ body {
 >레일즈 프로젝트를 생성합니다.
 ``` terminal
 $ sudo rails new wiki
+```
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'haml', '~> 5.2'
+gem 'bootstrap-sass', '~> 3.4', '>= 3.4.1'
+gem 'devise', '~> 4.7', '>= 4.7.3'
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+```
+``` terminal
+$ sudo gem install haml
+$ sudo gem install bootstrap-sass
+$ sudo gem install devise
+$ sudo gem install simple_form
 ```
