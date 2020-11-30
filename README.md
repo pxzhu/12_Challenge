@@ -11,6 +11,7 @@ Chapter 05. [Movie Review](#moview-review)
 Chapter 06. [Todo](#Todo)    
 Chapter 07. [Jobs Board](#jobs-board)    
 Chapter 08. [Workout Log](#workout-log)
+Chapter 09. [Wikipedia Clone](#wikipedia-clone)
 
 ---
 
@@ -3874,3 +3875,10 @@ body {
 = link_to "New Workout", new_workout_path, class: "navbar-link"
 ```
 ---
+
+## Wikipedia Clone
+- 2020-11-30
+>레일즈 프로젝트를 생성합니다.
+``` terminal
+$ sudo rails new wiki
+```
