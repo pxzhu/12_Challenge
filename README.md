@@ -3949,3 +3949,29 @@ root 'articles#index'
 
 = link_to "Back", root_path
 ```
+>simple_form을 bootstrap 옵션을 추가하여 설치해줍니다.
+``` terminal
+$ sudo rails generate simple_form:install --bootstrap
+```
+>app/controllers/articles_controller.rb 파일에 다음을 추가합니다.
+``` rb
+before_action :find_article, only: [:show]
+# 중략
+def show
+end
+# 중략
+def find_article
+  @article = Article.find(parmas[:id])
+end
+```
+>app/views/articles/show.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1= @article.title
+%p= @article.content
+
+= link_to "Back", root_path
+```
+>app/views/articles/index.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "New Article", new_article_path
+```
