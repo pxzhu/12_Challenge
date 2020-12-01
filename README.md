@@ -4023,3 +4023,27 @@ $ sudo rails generate devise:views
 $ sudo rails generate devise User
 $ sudo rake db:migrate
 ```
+>app/models/article.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :user
+```
+>app/models/user.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :articles
+```
+>user_id를 articles에 추가하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate migration add_user_id_to_articles user_id:integer:index
+$ sudo rake db:migrate
+```
+>app/controllers/articles_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+@article = Article.new
+# 중략
+@article = Article.new(article_params)
+# after
+@article = current_user.articles.build
+# 중략
+@article = current_user.articles.build(article_params)
+```
