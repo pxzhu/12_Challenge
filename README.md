@@ -3975,3 +3975,30 @@ end
 ``` haml
 = link_to "New Article", new_article_path
 ```
+- 2020-12-01
+>app/views/articles/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+%h1 This is the articles#index placeholder
+
+= link_to "New Article", new_article_path
+<!-- after -->
+- @articles.each do |article|
+  %h2= article.title
+  %p
+    Published at
+    = article.created_at.strftime('%b %d, %Y')
+  %p= truncate(article.content, length: 200)
+
+= link_to "New Article", new_article_path
+```
+>app/controllers/articles_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+def index
+end
+# after
+def index
+  @articles = Article.all.order("created_at DESC")
+end
+```
