@@ -4002,3 +4002,24 @@ def index
   @articles = Article.all.order("created_at DESC")
 end
 ```
+>devise를 설치해줍니다.
+``` terminal
+$ sudo rails generate devise:install
+```
+>config/environments>development.rb 파일에 다음을 추가합니다.
+``` rb
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+>app/views/layouts/application.html.erb 파일에 다음을 추가합니다.
+``` erb
+<p class="notice"><%= notice %></p>
+<p class="alert"><%= alert %></p>
+```
+>devise의 views를 생성해줍니다.    
+>devise의 User를 생성해줍니다.    
+>마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate devise:views
+$ sudo rails generate devise User
+$ sudo rake db:migrate
+```
