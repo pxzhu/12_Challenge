@@ -4047,3 +4047,16 @@ $ sudo rake db:migrate
 # 중략
 @article = current_user.articles.build(article_params)
 ```
+- 2020-12-02
+>app/controllers/articles_controller.rb 파일에 다음을 추가합니다.
+``` rb
+before_action :authenticate_user!, except: [:index, :show]
+```
+>app/views/articles/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+= link_to "New Article", new_article_path
+<!-- after -->
+- if user_signed_in?
+  = link_to "New Article", new_article_path
+```
