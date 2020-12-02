@@ -4135,3 +4135,40 @@ end
 <!-- after -->
 %h2= link_to article.title, article
 ```
+>app/controllers/articles_controller.rb 파일을 다음과 같이 수정하고 추가합니다.
+``` rb
+# before
+before_action :find_article, only: [:show]
+# after
+before_action :find_article, only: [:show, :edit, :update, :destroy]
+```
+``` rb
+def edit
+end
+
+def update
+  if @article.update(article_params)
+    redirect_to @article
+  else
+    render 'edit'
+  end
+end
+
+def destroy
+  @article.destroy
+  redirect_to root_path
+end
+```
+>app/views/articles/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "Edit", edit_article_path(@article)
+= link_to "Delete", article_path(@article), method: :delete, data: { confirm: "Are you sure?" }
+```
+>app/views/articles/edit.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+%h1 Edit Article
+
+= render 'form'
+
+= link_to "Back", root_path
+```
