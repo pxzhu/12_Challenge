@@ -4060,3 +4060,78 @@ before_action :authenticate_user!, except: [:index, :show]
 - if user_signed_in?
   = link_to "New Article", new_article_path
 ```
+>Category 모델을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model Category name:string
+$ sudo rake db:migrate
+```
+>category를 article에 연결합니다.
+``` terminal
+$ sudo rails generate migration add_category_id_to_articles category_id:integer
+```
+>app/models/article.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :category
+```
+>app/models/category.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :articles
+```
+>rails 콘솔에서 카테고리를 생성해줍니다.
+``` terminal
+> Category.create(name: "Art")
+> Category.create(name: "Technology")
+> Category.create(name: "Politics")
+```
+>app/views/articles/_form.html.haml 파일에 다음을 추가합니다.
+``` haml
+= f.collection_select :category_id, Category.all, :id, :name, { promt: "Choose a Category" }
+```
+>app/controllers/articles_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+params.require(:article).permit(:title, :content)
+# after
+params.require(:article).permit(:title, :content, :category_id)
+```
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 바꾸고 다음과 같이 수정해줍니다.
+``` haml
+!!!
+%html
+  %head
+    %title Wiki
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+  %body
+    %p.notice= notice
+    %p.alert= alert
+
+    = yield
+
+    %ul
+      %li= link_to "All Articles", root_path
+      - Category.all.each do |category|
+        %li= link_to category.name, articles_path(category: category.name)
+```
+>app/controllers/articles_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+@articles = Article.all.order("created_at DESC")
+# after
+if params[:category].blank?
+  @articles = Article.all.order("created_at DESC")
+else
+  @category_id = Category.find_by(name: params[:category]).id
+  @articles = Article.where(category_id: @category_id).order("created_at DESC")
+end
+```
+>app/views/articles/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+%h2= article.title
+<!-- after -->
+%h2= link_to article.title, article
+```
