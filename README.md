@@ -4172,3 +4172,65 @@ end
 
 = link_to "Back", root_path
 ```
+- 2020-12-04
+>app/assets/styleshhets/application.css 파일을 application.scss 파일로 바꾸고 다음을 추가합니다.
+``` scss
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+ul {
+  list-style: none;
+}
+```
+>jQuery를 사용하기 위해 Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'jquery-rails'
+```
+``` terminal
+$ sudo bundle install
+```
+>app/javascript/packs/application.js 파일에 다음을 추가합니다.
+``` js
+require("jquery")
+require("bootstrap-sprockets")
+```
+>app/views/layouts/application.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+%body
+  %nav.navbar.navbar-default.navbar-fixed-top
+    .container
+      = link_to "Wiki", root_path, class: "navbar-brand"
+      %ul.nav.navbar-nav.navbar-right
+        - if user_signed_in?
+          %li= link_to "New Article", new_article_path
+  %p.notice= notice
+  %p.alert= alert
+
+  .container
+    .row
+      .col-md-8
+        = yield
+      .col-md-4
+        %ul.list-group
+          %li= link_to "All Articles", root_path, class: "list-group-item"
+          - Category.all.each do |category|
+            %li= link_to category.name, articles_path(category: category.name), class: "list-group-item"
+```
+>app/views/articles/show.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+<!-- before -->
+= link_to "Back", root_path
+= link_to "Edit", edit_article_path(@article)
+= link_to "Delete", article_path(@article), method: :delete, data: { confirm: "Are you sure?" }
+<!-- after -->
+.btn-group
+  = link_to "Back", root_path, class: "btn btn-default"
+  - if user_signed_in?
+    = link_to "Edit", edit_article_path(@article), class: "btn btn-default"
+    = link_to "Delete", article_path(@article), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-default"
+```
+>app/views/articles/index.html.haml 파일에 다음을 삭제해줍니다.
+``` haml
+- if user_signed_in?
+  = link_to "New Article", new_article_path
+```
