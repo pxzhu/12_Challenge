@@ -12,6 +12,7 @@ Chapter 06. [Todo](#Todo)
 Chapter 07. [Jobs Board](#jobs-board)    
 Chapter 08. [Workout Log](#workout-log)    
 Chapter 09. [Wikipedia Clone](#wikipedia-clone)    
+Chapter 10. [Forum](#forum)    
 
 ---
 
@@ -4234,3 +4235,6 @@ require("bootstrap-sprockets")
 - if user_signed_in?
   = link_to "New Article", new_article_path
 ```
+---
+
+## Forum
