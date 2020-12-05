@@ -4259,3 +4259,12 @@ resources :posts
 
 root 'posts#index'
 ```
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'haml', '~> 5.2', '>= 5.2.1'
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+gem 'devise', '~> 4.7', '>= 4.7.3'
+```
+``` terminal
+$ sudo bundle install
+```
