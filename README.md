@@ -4268,3 +4268,89 @@ gem 'devise', '~> 4.7', '>= 4.7.3'
 ``` terminal
 $ sudo bundle install
 ```
+>app/views/posts/index.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 This is the index placeholder text
+```
+>app/controllers/posts_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+before_action :find_post, only: [:show, :edit, :update, :destroy]
+
+def index
+end
+
+def show
+end
+
+def new
+  @post = Post.new
+end
+
+def create
+  @post = Post.new(post_params)
+
+  if @post.save
+    redirect_to @post
+  else
+    render 'new'
+  end
+end
+
+def edit
+end
+
+def update
+  if @post.update(post_params)
+    redirect_to @post
+  else
+    render 'edit'
+  end
+end
+
+def destroy
+  @post.destroy
+  redirect_to root_path
+end
+
+private
+
+def find_post
+  @post = Post.find(params[:id])
+end
+
+def post_params
+  params.require(:post).permit(:title, :content)
+end
+```
+>app/views/posts/_form.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+= simple_form_for @post do |f|
+  = f.input :title
+  = f.input :content
+  = f.submit
+```
+>app/views/posts/new.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 New Post
+
+= render 'form'
+
+= link_to "Back", root_path
+```
+>app/views/posts/show.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+%h1= @post.title
+%p= @post.content
+
+= link_to "Edit", edit_post_path(@post)
+= link_to "Delete", post_path(@post), method: :delete, data: { confirm: "Are you sure you wnat to do this?" }
+= link_to "Home", root_path
+```
+>app/views/posts/edit.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 Edit Post
+
+= render 'form'
+
+= link_to "Cancle", post_path
+```
