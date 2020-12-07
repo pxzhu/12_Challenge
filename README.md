@@ -4354,3 +4354,24 @@ end
 
 = link_to "Cancle", post_path
 ```
+- 2020-12-07
+>app/controllers/posts_controller.rb 파일의 다음을 수정해줍니다.
+``` rb
+# before
+def index
+end
+# after
+def index
+  @posts = Post.all.order("created_at DESC")
+end
+```
+>app/views/posts/index.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+- @posts.each do |post|
+  %h2= post.title
+  %p
+    Published at
+    = time_ago_in_words(post.created_at)
+    
+= link_to "New Post", new_post_path
+```
