@@ -4372,6 +4372,44 @@ end
   %p
     Published at
     = time_ago_in_words(post.created_at)
-    
+
 = link_to "New Post", new_post_path
+```
+>app/views/posts/index.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+<!-- before -->
+%h2= post.title
+<!-- after -->
+%h2= link_to post.title, post
+```
+>devise를 사용하기위해 설치해줍니다.
+``` terminal
+$ sudo rails generate devise:install
+```
+>config/environments/development.rb 파일에 다음을 추가합니다.
+``` rb
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 바꾸고 다음처럼 수정해줍니다.
+``` haml
+!!!
+%html
+  %head
+    %title Forum
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+
+  %body
+    %p.notice= notice
+    %p.alert= alert
+
+    =yield
+```
+>devise user를 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate devise user
+$ sudo rake db:migrate
 ```
