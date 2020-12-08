@@ -4413,3 +4413,26 @@ config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 $ sudo rails generate devise user
 $ sudo rake db:migrate
 ```
+- 2020-12-08
+>simple_form을 설치해줍니다.
+``` terminal
+$ sudo rails generate simple_form:install
+```
+>app/models/post.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :user
+```
+>app/models/user.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :posts
+```
+>user와 post를 연결하고 마이그레이션해줍니다.
+``` terminal
+$ sudo rails generate migration add_user_id_to_posts user_id:integer
+$ sudo rake db:migrate
+```
+>app/views/posts/index.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+by
+= post.user.email
+```
