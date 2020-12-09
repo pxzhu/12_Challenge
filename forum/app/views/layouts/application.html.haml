@@ -1,15 +1,26 @@
 !!!
 %html
   %head
-    %title Forum
+    %title PXZHU's Rails Forum
     = csrf_meta_tags
     = csp_meta_tag
 
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
     = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
 
+    %link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css")/
+    
   %body
-    %p.notice= notice
-    %p.alert= alert
+    %header.main_header.clearfix
+      .wrapper
+        #logo
+          %p PXZHU's Rails Forum
+        #buttons
+          = link_to "New Post", new_post_path
 
-    =yield
+    .wrapper
+      %p.notice= notice
+      %p.alert= alert
+
+    .wrapper
+      =yield

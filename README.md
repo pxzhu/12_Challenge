@@ -4436,3 +4436,108 @@ $ sudo rake db:migrate
 by
 = post.user.email
 ```
+- 2020-12-09
+>app/views/layouts/application.html.haml을 다음과 같이 수정해줍니다.
+``` haml
+!!!
+%html
+  %head
+    %title PXZHU's Rails Forum
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+
+    %link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css")/
+    
+  %body
+    %header.main_header.clearfix
+      .wrapper
+        #logo
+          %p PXZHU's Rails Forum
+        #buttons
+          = link_to "New Post", new_post_path
+
+    .wrapper
+      %p.notice= notice
+      %p.alert= alert
+
+    .wrapper
+      =yield
+```
+>app/assets/stylesheets/application.css 파일을 application.scss 파일로 변경하고 다음을 추가합니다.
+``` scss
+body {
+  background: #EDEFF0;
+}
+
+.wrapper {
+  width: 60%;
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.clearfix:before, .clearfix:after {
+  content: " ";
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+
+.main_header {
+  width: 100%;
+  margin: 0 auto;
+  background: white;
+  #logo {
+    float: left;
+    p {
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: -1px;
+      font-size: 1.2rem;
+    }
+  }
+  #buttons {
+    float: right;
+  }
+}
+
+#posts {
+  background: white;
+  padding: 2em 5%;
+  border-radius: .5em;
+  .post {
+    margin: 1em 0;
+    padding: 1em 0;
+    border-bottom: 1px solid #D1D1D1;
+    .title {
+      margin: 0;
+      a {
+        color: #397CAC;
+        text-decoration: none;
+        font-weight: 100;
+        font-size: 1.25rem;
+      }
+    }
+    .date {
+      margin-top: .25rem;
+      font-size: 0.9rem;
+      color: #B2BAC2;
+    }
+  }
+}
+```
+>app/views/posts/index.html.haml 파일에 다음과 같이 수정해줍니다.
+``` haml
+#posts
+  - @posts.each do |post|
+    .post
+      %h2.title= link_to post.title, post
+      %p.date
+        Published at
+        = time_ago_in_words(post.created_at)
+        by
+        = post.user.email
+```
