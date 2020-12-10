@@ -4567,3 +4567,35 @@ body {
   }
 }
 ```
+>app/views/layouts/application.html.haml 파일의 다음을 수정해줍니다.
+``` haml
+<!-- before -->
+  %p PXZHU's Rails Forum
+#buttons
+  = link_to "New Post", new_post_path
+<!-- after -->
+  %p= link_to "PXZHU's Rails Forum", root_path
+#buttons
+  -if user_signed_in?
+    = link_to "New Post", new_post_path
+  - else
+    = link_to "Sign Up", new_user_registration_path
+    = link_to "Sign In", new_user_session_path
+```
+>app/assets/stylesheets/application.scss 파일에 다음을 추가해줍니다.
+``` scss
+#logo {
+  /* 중략 */
+  p {
+    /* 중략 */
+    a {
+        text-decoration: none;
+        color: #397CAC;
+    }
+  }
+}
+```
+>app/controllers/posts_controller.rb 파일에 다음을 추가해줍니다. 
+``` rb
+before_action :authenticate_user!, except: [:index, :show]
+```
