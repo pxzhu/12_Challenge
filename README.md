@@ -4541,3 +4541,29 @@ body {
         by
         = post.user.email
 ```
+- 2020-12-10
+>app/views/posts/show.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+#post_content
+  %h1= ...<!-- 이하 생략 -->
+```
+>app/assets/stylesheets/application.scss 파일에 다음을 추가해줍니다.
+``` scss
+#post_content {
+  background: white;
+  padding: 2em 5%;
+  border-radius: .5em;
+  h1 {
+    font-weight: 100;
+    font-size: 2em;
+    color: #397CAC;
+    margin-top: 0;
+  }
+  p {
+    color: #B2BAC2;
+    font-size: 0.9rem;
+    font-weight: 100;
+    line-height: 1.5;
+  }
+}
+```
