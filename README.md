@@ -4599,3 +4599,65 @@ body {
 ``` rb
 before_action :authenticate_user!, except: [:index, :show]
 ```
+- 2020-12-11
+>Comment 모델을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model Comment comment:text post:references user:references
+$ sudo rake db:migrate
+```
+>app/models/post.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :comments
+```
+>app/models/post.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :comments
+```
+>confing/routes.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+resources :posts
+# after
+resources :posts do
+  resources :comments
+end
+```
+>Comments 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller Comments
+```
+>app/controllers/comments_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def create
+  @post = Post.find(params[:post_id])
+  @comment = @post.comments.create(params[:comment].permit(:comment))
+
+  if @comment.save
+    redirect_to post_path(@post)
+  else
+    render 'new'
+  end
+end
+```
+>app/views/comments/_comment.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+.comment
+  %p= comment.comment
+```
+>app/views/comments/_form.html.haml 파일을 생성하고 다음을 추가해줍니다.
+``` haml
+= simple_form_for([@post, @post.comments.build]) do |f|
+  = f.input :comment
+  = f.submit
+```
+>app/views/posts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+#comments
+  %h2= @post.comments.count
+  = render @post.comments
+
+  %h3 Reply to thread
+  = render "comments/form"
+```
+>Comments의 Template 문제로 프로젝트를 일시 중단합니다.
+---
