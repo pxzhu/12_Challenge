@@ -13,6 +13,7 @@ Chapter 07. [Jobs Board](#jobs-board)
 Chapter 08. [Workout Log](#workout-log)    
 Chapter 09. [Wikipedia Clone](#wikipedia-clone)    
 Chapter 10. [Forum](#forum)    
+Chapter 11. [NoteNote](#notenote)
 
 ---
 
@@ -4661,3 +4662,10 @@ end
 ```
 >Comments의 Template 문제로 프로젝트를 일시 중단합니다.
 ---
+
+## Notenote
+- 2020-12-12
+>notenote 프로젝트를 생성해줍니다.
+``` terminal
+$ sudo rails new notenote
+```
