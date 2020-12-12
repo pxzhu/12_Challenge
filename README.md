@@ -4677,3 +4677,16 @@ $ sudo rails generate controller Welcome index
 ``` rb
 root 'welcome#index'
 ```
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'haml', '~> 5.2', '>= 5.2.1'
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+gem 'devise', '~> 4.7', '>= 4.7.3'
+```
+``` terminal
+$ sudo bundle install
+```
+>app/views/welcome/index.html.erb 파일을 index.html.haml 파일로 변경하고 다음과 같이 수정해준다.
+``` haml
+%h1 This is the welcome placeholder
+```
