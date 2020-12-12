@@ -4669,3 +4669,11 @@ end
 ``` terminal
 $ sudo rails new notenote
 ```
+>controller를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller Welcome index
+```
+>config/routes.rb 파일에 다음을 추가합니다.
+``` rb
+root 'welcome#index'
+```
