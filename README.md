@@ -4690,3 +4690,10 @@ $ sudo bundle install
 ``` haml
 %h1 This is the welcome placeholder
 ```
+- 2020-12-13
+>simple_form을 생성하고 Note 모델을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate simple_form:install
+$ sudo rails generate model Note title:string content:text
+$ sudo rake db:migrate
+```
