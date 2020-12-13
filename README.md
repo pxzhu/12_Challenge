@@ -4697,3 +4697,42 @@ $ sudo rails generate simple_form:install
 $ sudo rails generate model Note title:string content:text
 $ sudo rake db:migrate
 ```
+>Notes 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller Notes
+```
+>app/controllers/notes_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def index
+end
+
+def show
+end
+
+def new
+end
+
+def create
+end
+
+def edit
+end
+
+def update
+end
+
+def destory
+end
+
+private
+
+def find_note
+end
+
+def note_params
+end
+```
+>config/routes.rb 파일에 다음을 추가합니다.
+``` rb
+resources :notes
+```
