@@ -4736,3 +4736,62 @@ end
 ``` rb
 resources :notes
 ```
+- 2020-12-15
+>app/views/notes/_form.html.haml 파일을 생성해주고 다음을 추가합니다.    
+>app/views/notes/new.html.haml 파일을 생성해주고 다음을 추가합니다.
+``` haml
+= simple_form_for @note do |f|
+  = f.input :title
+  = f.input :content
+  = f.button :submit
+```
+``` haml
+%h1 Add a New Note
+
+= render 'form'
+
+= link_to "Back", root_path
+```
+>app/controllers/notes_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+before_action :find_note, only: [:show, :edit, :update, :destory]
+
+def index
+  @notes = Note.all.order("created_at DESC")
+end
+# 중략
+def new
+  @note = Note.new
+end
+
+def create
+  @note = Note.new(note_params)
+
+  if @note.save
+    redirect_to @note
+  else
+    render 'new'
+  end
+end
+# 중략
+def find_note
+  @note = Note.find(params[:id])
+end
+
+def note_params
+  params.require(:note).permit(:title, :content)
+end
+```
+>app/views/notes/show.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1= @note.title
+%p= @note.content
+
+= link_to "All Notes", notes_path
+```
+>app/views/notes/index.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+- @notes.each do |note|
+  %h2= link_to note.title, note
+  %p= time_ago_in_words(note.created_at)
+```
