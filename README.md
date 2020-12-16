@@ -4795,3 +4795,45 @@ end
   %h2= link_to note.title, note
   %p= time_ago_in_words(note.created_at)
 ```
+- 2020-12-16
+>app/controllers/notes_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before_action :find_note, only: [:show, :edit, :update, :destroy]
+# destory >> destroy 로 오타를 수정합니다.
+# before
+def update
+end
+
+def destory
+end
+# after
+def update
+  if @note.update(note_params)
+    redirect_to @note
+  else
+    render 'edit'
+  end
+end
+
+def destroy
+  @note.destroy
+  redirect_to notes_path
+end
+```
+>app/views/notes/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "Edit", edit_note_path(@note)
+= link_to "Delete", note_path(@note), method: :delete, data: { confirm: "Are you sure?" }
+```
+>app/views/notes/edit.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 Edit Your Note
+
+= render 'form'
+
+= link_to "Cancle", note_path
+```
+>app/views/notes/index.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to "New Note", new_note_path
+```
