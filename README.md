@@ -4890,3 +4890,13 @@ def create
 # after
 @notes = Note.where(user_id: current_user).order("created_at DESC")
 ```
+>config/routes.rb 파일을 다음과 같이 수정해줍니다.
+``` rb
+resources :notes
+  
+authenticated :user do
+  root 'notes#index', as: "autehnticated_root"
+end
+
+root 'welcome#index'
+```
