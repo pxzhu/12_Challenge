@@ -4882,3 +4882,11 @@ end
 def create
   @note = current_user.notes.build(note_params)
 ```
+- 2020-12-21
+>app/controllers/notes_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+@notes = Note.all.order("created_at DESC")
+# after
+@notes = Note.where(user_id: current_user).order("created_at DESC")
+```
