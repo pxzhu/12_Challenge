@@ -4900,3 +4900,19 @@ end
 
 root 'welcome#index'
 ```
+>app/assets/stylesheets/normalize.scss를 생성하고 [다음](https://necolas.github.io/normalize.css/8.0.1/normalize.css)을 추가해줍니다.    
+>app/assets/stylesheets/global.scss 파일을 생성하고 [다음](https://github.com/mackenziechild/notenote/blob/master/app/assets/stylesheets/global.css.scss)을 추가해줍니다.    
+>app/assets/stylesheets/notes.scss 파일에 [다음](https://github.com/mackenziechild/notenote/blob/master/app/assets/stylesheets/notes.css.scss)을 추가해줍니다.    
+>app/assets/stylesheets/welcome.scss 파일에 [다음](https://github.com/mackenziechild/notenote/blob/master/app/assets/stylesheets/welcome.css.scss)을 추가해줍니다.    
+>app/assets/stylesheets/application.css 파일을 application.scss 파일로 변경한 뒤 다음과 같이 추가해줍니다.
+``` scss
+/*
+ *= require_self
+ */
+
+@import 'normalize.scss';
+@import 'global.scss';
+@import 'notes.scss';
+@import 'welcome.scss';
+```
+>app/assets/images/에 [다음](https://github.com/mackenziechild/notenote/tree/master/app/assets/images)을 추가합니다.
