@@ -13,7 +13,8 @@ Chapter 07. [Jobs Board](#jobs-board)
 Chapter 08. [Workout Log](#workout-log)    
 Chapter 09. [Wikipedia Clone](#wikipedia-clone)    
 Chapter 10. [Forum](#forum)    
-Chapter 11. [NoteNote](#notenote)
+Chapter 11. [NoteNote](#notenote)    
+Chapter 12. [Muse](#muse)
 
 ---
 
@@ -5039,3 +5040,7 @@ root 'welcome#index'
   %h2 Lightning
   %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
 ```
+---
+
+## Muse
+- 2020-12-22
