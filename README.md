@@ -4969,3 +4969,18 @@ root 'welcome#index'
 %footer
   %p &copy; PXZHU
 ```
+>app/views/notes/index.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+.wrapper_with_padding
+  #notes.clearfix
+    - unless @notes.blank?
+      - @notes.each do |note|
+        %a( href= "url_for [note]" )
+          .note
+            %p.title= note.title
+            %p.date= time_ago_in_words(note.created_at)
+    - else
+      %h2 Add a note
+      %p It appears you haven't created any notes yet... Lets fix that. Why don't you create a new note below.
+      %button= link_to "New Note", new_note_path
+```
