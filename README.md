@@ -4995,3 +4995,28 @@ root 'welcome#index'
       = link_to "Edit", edit_note_path(@note), class: "button"
       = link_to "Delete", note_path(@note), method: :delete, data: { confirm: "Are you sure?" }, class: "button"
 ```
+>app/views/notes/new.html.haml과 app/views/notes.edit.html.haml 파일을 다음으로 감싸줍니다.
+``` haml
+.wrapper_with_padding
+  <!-- 이하 생략 -->
+```
+>app/views/notes/_form.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+= f.button :submit, class: "button"
+```
+>app/views/devise/registrations/new.html.erb 파일을 다음으로 감싸줍니다.
+``` erb
+<div class="wrapper_with_padding">
+  <!-- 중략 -->
+    <%= f.button :submit, "Sign up", class: "button" %>
+  <!-- 중략 -->
+</div>
+```
+>app/views/devise/sessions/new.html.erb 파일을 다음으로 감싸줍니다.
+``` erb
+<div class="wrapper_with_padding">
+  <!-- 중략 -->
+    <%= f.button :submit, "Log in", class: "button" %>
+  <!-- 중략 -->
+</div>
+```
