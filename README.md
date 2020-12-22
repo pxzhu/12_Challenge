@@ -5044,3 +5044,23 @@ root 'welcome#index'
 
 ## Muse
 - 2020-12-22
+>post 모델을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model post title:string link:string description:text
+$ sudo rake db:migrate
+```
+>posts 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller Posts
+```
+>config/routes.rb 파일에 다음을 추가합니다.
+``` rb
+resources :posts
+
+root 'posts#index'
+```
+>app/controllers/posts_controller.rb 파일에 다음을 추가합니다.
+``` rb
+def index
+end
+```
