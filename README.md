@@ -4916,3 +4916,56 @@ root 'welcome#index'
 @import 'welcome.scss';
 ```
 >app/assets/images/에 [다음](https://github.com/mackenziechild/notenote/tree/master/app/assets/images)을 추가합니다.
+- 2020-12-22
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 변경하고 다음과 같이 수정해줍니다.
+``` haml
+!!!
+%html
+  %head
+    %title NoteNote | Your online Notebook
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+  %body
+    %p.notice= notice
+    %p.alert= alert
+
+    = yield
+```
+>app/views/welcome/index.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+#banner
+  .banner_content
+    %h1 NoteNote
+    %p Your online notebook. Never forget an idea again.
+    %button= link_to "Sign Up", new_user_registration_path
+
+#testimonial
+  .wrapper
+    %p.quote "The greatest notebook application. Period"
+    %p.name - PXZHU
+
+#callouts
+  .callout_inner
+    .wrapper
+      .callout
+        %h2 Notes
+        %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
+      .callout
+        %h2 Rocket
+        %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
+      .callout
+        %h2 Lightning
+        %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
+
+#bottom_cta
+  .wrapper
+    %h2 For Realz!
+    %p I want you to sign up... If you don;t, I will find you!
+    %button= link_to "Click Meee!!!", new_user_registration_path
+
+%footer
+  %p &copy; PXZHU
+```
