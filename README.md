@@ -4984,3 +4984,14 @@ root 'welcome#index'
       %p It appears you haven't created any notes yet... Lets fix that. Why don't you create a new note below.
       %button= link_to "New Note", new_note_path
 ```
+>app/views/notes/show.html.haml 파일을 다음과 같이 수정합니다.
+``` haml
+.wrapper_with_padding
+  #note_show
+    %h1.title= @note.title
+    %p= simple_format(@note.content)
+
+    .buttons
+      = link_to "Edit", edit_note_path(@note), class: "button"
+      = link_to "Delete", note_path(@note), method: :delete, data: { confirm: "Are you sure?" }, class: "button"
+```
