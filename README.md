@@ -5020,3 +5020,22 @@ root 'welcome#index'
   <!-- 중략 -->
 </div>
 ```
+>app/views/layotus/application.html.haml 파일에 다음을 추가합니다.
+``` haml
+%link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")/
+```
+>app/views/welcome/index.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+.callout
+  %i.fa.fa-pencil
+  %h2 Notes
+  %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
+.callout
+  %i.fa.fa-rocket
+  %h2 Rocket
+  %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
+.callout
+  %i.fa.fa-bolt
+  %h2 Lightning
+  %p I'm baby fam photo booth enamel pin biodiesel. Slow-carb poutine coloring book actually yuccie poke street art enamel pin drinking vinegar raclette.
+```
