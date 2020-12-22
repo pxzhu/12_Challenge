@@ -4975,7 +4975,7 @@ root 'welcome#index'
   #notes.clearfix
     - unless @notes.blank?
       - @notes.each do |note|
-        %a( href= "url_for [note]" )
+        %a{ href: (url_for [note]) }
           .note
             %p.title= note.title
             %p.date= time_ago_in_words(note.created_at)
