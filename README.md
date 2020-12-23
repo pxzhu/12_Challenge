@@ -5064,3 +5064,18 @@ root 'posts#index'
 def index
 end
 ```
+- 2020-12-23
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'haml', '~> 5.2', '>= 5.2.1'
+gem 'simple_form', '~> 5.0', '>= 5.0.3'
+gem 'devise', '~> 4.7', '>= 4.7.3'
+gem 'paperclip', '~> 6.1'
+```
+``` terminal
+$ sudo bundle install
+```
+>app/views/posts/index.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+%h1 This is the placeholder ;)
+```
