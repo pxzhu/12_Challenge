@@ -5207,3 +5207,41 @@ end
 def create
   @post = current_user.posts.build(post_params)
 ```
+>User 모델에 이름을 추가하고 마이그레이션 해줍니다.    
+>Devise 뷰를 생성해줍니다.
+``` terminal
+$ sudo rails generate migration add_name_to_user name:string
+$ sudo rake db:migrate
+$ sudo rails generate devise:views
+```
+>app/views/devise/registrations/new.html.erb 파일을 다음과 같이 수정해줍니다.
+``` erb
+%= f.input :name,
+            required: true,
+            autofocus: true,
+            input_html: { autocomplete: "name" }%>
+<%= f.input :email,
+            required: true,
+            input_html: { autocomplete: "email" }%>
+```
+>app/views/devise/registrations/edit.html.erb 파일을 다음과 같이 수정합니다.
+``` erb
+<%= f.input :name, required: true, autofocus: true %>
+<%= f.input :email, required: true %>
+```
+>app/controllers/application_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+# 문법 변경으로 인해 수정하였음.
+before_action :configure_permitted_parameters, if: :devise_controller?
+
+protected
+
+def configure_permitted_parameters
+  devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
+  devise_parameter_sanitizer.permit(:account_update, keys: [:name])
+end
+```
+>app/views/posts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+%p= @post.user.name
+```
