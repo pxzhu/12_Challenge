@@ -5273,5 +5273,70 @@ params.require(:post).permit(:title, :link, :description, :image)
 ```
 >app/views/posts/index.html.haml 파일에 다음을 추가합니다.
 ``` haml
-= link_to (image_tag post.image.url(:small))
+= link_to (image_tag post.image.url(:small)), post
+<!-- 중략 -->
+%p
+  = post.comments.count
+  Comments
+```
+>comment 모델을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate model comment content:text post:references user:references
+$ sudo rake db:migrate
+```
+>app/models/user.rb와 post.rb 파일에 각각 다음을 추가해줍니다.
+``` rb
+has_many :comments
+```
+>config/routes.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+resources :posts
+# after
+resources :posts do
+  resources :comments
+end
+```
+>comments 컨트롤러를 생성해줍니다.
+``` terminal
+$ sudo rails generate controller comments
+```
+>app/controllers/comments_controller.rb 파일에 다음을 추가합니다.
+``` rb
+before_action :authenticate_user!
+def create
+  @post = Post.find(params[:post_id])
+  @comment = Comment.create(params[:comment].permit(:content))
+  @comment.user_id = current_user.id
+  @comment.post_id = @post.id
+
+  if @comment.save
+    redirect_to  post_path(@post)
+  else
+    render 'new'
+  end
+end
+```
+>app/views/comments/_form.html.haml 파일을 생성하고 다음을 추가합니다.
+``` haml
+= simple_form_for([@post, @post.comments.build]) do |f|
+  = f.input :content, label: "Reply to thread"
+  = f.button, :submit, class: "button"
+```
+>app/views/posts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+#comment
+  %h2.comment_count= pluralize(@post.comments.count, "Comment")
+  - @comments.each do |comment|
+    .comment
+      %p.username= comment.user.name
+      %p.content= comment.content
+
+  = render 'comments/form'
+```
+>app/controllers/posts_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+def show
+  @comments = Comment.where(post_id: @post)
+end
 ```
