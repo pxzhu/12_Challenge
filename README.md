@@ -5245,3 +5245,33 @@ end
 ``` haml
 %p= @post.user.name
 ```
+>app/models/post.rb 파일에 다음을 추가합니다.
+``` rb
+has_attached_file :image, styles: { medium: "700x500#", small: "350x250#" }
+validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
+```
+>paperclip을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate paperclip post image
+$ sudo rake db:migrate
+# 오류 발생 시  migrate 파일 버전을 수정해준다. ex) [6.0]
+```
+>app/views/posts/_form.html.haml 파일에 다음을 추가합니다.
+``` haml
+= f.input :image
+```
+>app/controllers/posts_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# before
+params.require(:post).permit(:title, :link, :description)
+# after
+params.require(:post).permit(:title, :link, :description, :image)
+```
+>app/views/posts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+= image_tag @post.image.url(:medium)
+```
+>app/views/posts/index.html.haml 파일에 다음을 추가합니다.
+``` haml
+= link_to (image_tag post.image.url(:small))
+```
