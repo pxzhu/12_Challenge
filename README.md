@@ -5165,3 +5165,45 @@ end
 
 = link_to "Add New Inspiration", new_post_path
 ```
+- 2020-12-25
+>devise를 설치해줍니다.
+``` terminal
+$ sudo rails generate devise:install
+```
+>config/environments/development.rb 파일에 다음을 추가해줍니다.
+``` rb
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+>app/views/layouts/application.html.erb 파일에 다음을 추가합니다.
+``` erb
+<p class="notice"><%= notice %></p>
+<p class="alert"><%= alert %></p>
+```
+>devise User 모델을 생성하고 마이그레이션 해줍니다.    
+>user와 post를 연결하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate devise User
+$ sudo rake db:migrate
+$ sudo rails generate migration add_user_id_to_post user_id:integer
+$ sudo rake db:migrate
+```
+>app/models/user.rb 파일에 다음을 추가합니다.
+``` rb
+has_many :posts
+```
+>app/models/post.rb 파일에 다음을 추가합니다.
+``` rb
+belongs_to :user
+```
+>app/controllers/posts_controller.rb 파일을 다음과 같이 수정합니다.
+``` rb
+# ...
+before_action :authenticate_user!, except: [:index, :show]
+# 중략
+def new
+  @post = current_user.posts.build
+end
+
+def create
+  @post = current_user.posts.build(post_params)
+```
