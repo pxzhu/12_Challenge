@@ -5514,3 +5514,16 @@ end
 
   = render 'comments/form'
 ```
+>app/views/layouts/application.html.haml 파일의 다음을 수정합니다.
+``` haml
+= stylesheet_link_tag 'application', media: 'all'
+= javascript_pack_tag 'application'
+```
+>app/javascript/packs/application.js 파일의 다음을 삭제합니다.
+``` js
+require("turbolinks").start()
+```
+>Gemfile의 다음을 삭제하고 번들을 새로고침 해줍니다.
+``` gemfile
+gem 'turbolinks', '~> 5'
+```
