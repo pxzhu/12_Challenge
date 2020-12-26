@@ -5340,3 +5340,58 @@ def show
   @comments = Comment.where(post_id: @post)
 end
 ```
+- 2020-12-26
+>Gemfile에 다음을 추가하고 설치해줍니다.
+``` gemfile
+gem 'acts_as_votable', '~> 0.13.1'
+```
+``` terminal
+$ sudo bundle install
+```
+>acts_as_votable을 생성하고 마이그레이션 해줍니다.
+``` terminal
+$ sudo rails generate acts_as_votable:migration
+$ sudo rake db:migrate
+```
+>app/models/post.rb 파일에 다음을 추가합니다.
+``` rb
+acts_as_votable
+```
+>config/routes.rb 파일에 다음을 추가합니다.
+``` rb
+member do
+  get "like", to: "posts#upvote"
+  get "dislike", to: "posts#downvote"
+end
+```
+>app/controllers/posts_controller.rb 파일에 다음을 추가해줍니다.
+``` rb
+before_action :find_post, only: [:show, :edit, :update, :destroy, :upvote, :downvote]
+# 중략
+def upvote
+  @post.upvote_by current_user
+  redirect_back fallback_location: root_path
+end
+
+def downvote
+  @post.downvote_by current_user
+  redirect_back fallback_location: root_path
+end
+```
+>app/views/posts/show.html.haml 파일에 다음을 추가해줍니다.
+``` haml
+%p
+  = @post.get_upvotes.size
+  Likes
+%p
+  = @post.get_downvotes.size
+  DisLikes
+= link_to "Like", like_post_path(@post), method: :get
+= link_to "Dislike", dislike_post_path(@post), method: :get
+```
+>app/views/posts/index.html.haml 파일에 다음을 추가합니다.
+``` haml
+%p
+  = post.get_likes.size
+  Likes
+```
