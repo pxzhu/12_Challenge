@@ -5424,3 +5424,93 @@ end
 
     = yield
 ```
+>app/assets/stylesheets/application.css 파일을 application.scss 파일로 변경하고 [다음](https://github.com/mackenziechild/muse/blob/master/app/assets/stylesheets/application.css.scss)을 추가하고 다음 사항을 수정해줍니다.    
+``` scss
+/* before */
+@import 'home.css.scss';
+@import 'post.css.scss';
+/* after */
+@import 'home.scss';
+@import 'post.scss';
+```
+>app/assets/stylesheets/comments.scss와 posts.scss를 삭제합니다.    
+>app/assets/stylesheets/post.scss를 생성하고 [다음](https://github.com/mackenziechild/muse/blob/master/app/assets/stylesheets/home.css.scss)을 추가해줍니다.    
+>app/assets/stylesheets/home.scss를 생성하고 [다음](https://github.com/mackenziechild/muse/blob/master/app/assets/stylesheets/post.css.scss)을 추가해줍니다.    
+>app/views.layouts/application.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+.wrapper
+  = yield
+```
+>app/views/posts/index.html.haml 파일에 다음을 추가합니다.
+``` haml
+- if user_signed_in?
+  %p#intro
+    Hello
+    = current_user.name
+    %br/
+    %span
+      Share your inspration and see what's inspiring others.
+- else
+  %p#intro
+    What's your muse?
+    %br/
+    %span
+      Share your inspration and see what's inspiring others.
+
+#posts
+  - @posts.each do |post|
+    .post
+      .post_image
+        = link_to (image_tag post.image.url(:small)), post
+      .post_content
+        .title
+          %h2= link_to post.title, post
+        .data.clearfix
+          %p.username
+            Shared by
+            = post.user.name
+          %p.buttons
+            %span
+              %i.fa.fa-comments-o
+              = post.comments.count
+            %span
+              %i.fa.fa-thumbs-o-up
+              = post.get_likes.size
+```
+>app/views/posts/show.html.haml 파일을 다음과 같이 수정해줍니다.
+``` haml
+#post_show
+  %h1= @post.title
+  %p.username
+    Share by
+    = @post.user.name
+    about
+    = time_ago_in_words(@post.created_at)
+  .clearfix
+    .post_image_description
+      = image_tag @post.image.url(:medium)
+      .description= simple_format(@post.description)
+    .post_data
+      = link_to "Visit Link", @post.link, class: "button"
+      = link_to like_post_path(@post), method: :get, class: "data" do
+        %i.fa.fa-thumbs-o-up
+        = pluralize(@post.get_upvotes.size, "Like")
+      = link_to dislike_post_path(@post), method: :get, class: "data" do
+        %i.fa.fa-thumbs-o-down
+        = pluralize(@post.get_downvotes.size, "Dislike")
+      %p.data
+        %i.fa.fa-comments-o
+        = pluralize(@post.comments.count, "Comment")
+      - if @post.user == current_user
+        = link_to "Edit", edit_post_path(@post), class: "data"
+        = link_to "Delete", post_path(@post), method: :delete, data: { confirm: "Are you sure?" }, class: "data"
+
+#comments
+  %h2.comment_count= pluralize(@post.comments.count, "Comment")
+  - @comments.each do |comment|
+    .comment
+      %p.username= comment.user.name
+      %p.content= comment.content
+
+  = render 'comments/form'
+```
