@@ -5395,3 +5395,32 @@ end
   = post.get_likes.size
   Likes
 ```
+>app/views/layouts/application.html.erb 파일을 application.html.haml 파일로 변경하고 다음과 같이 수정해줍니다.
+``` haml
+!!!
+%html
+  %head
+    %title Muse
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    %link(rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css")/
+    %link(rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")/
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+  %body
+    %header
+      .wrapper.clearfix
+        #logo= link_to "Muse", root_path
+        %nav
+          - if user_signed_in?
+            = link_to current_user.name, edit_user_registration_path
+            = link_to "Add New Inspiration", new_post_path, class: "button"
+          - else
+            = link_to "Sign In", new_user_session_path
+            = link_to "Sign Up", new_user_registration_path, class: "button"
+    %p.notice= notice
+    %p.alert= alert
+
+    = yield
+```
