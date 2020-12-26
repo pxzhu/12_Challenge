@@ -5527,3 +5527,32 @@ require("turbolinks").start()
 ``` gemfile
 gem 'turbolinks', '~> 5'
 ```
+``` terminal
+$ sudo bundle
+```
+>app/views/posts/show.html.haml 파일에 다음을 추가합니다.
+``` haml
+#random_post
+  %h3 Random Inspiration
+  .post
+    .post_image
+      = link_to (image_tag @random_post.image.url(:small)), post_path(@random_post)
+    .post_content
+      .title
+        %h2= link_to @random_post.title, post_path(@random_post)
+      .data.clearfix
+        %p.username
+          Shared by
+          = @random_post.user.name
+        %p.buttons
+          %span
+            %i.fa.fa-comments-o
+            = @random_post.comments.count
+          %span
+            %i.fa.fa-thumbs-o-up
+            = @random_post.get_likes.size
+```
+>app/controllers/posts_controller.rb 파일에 다음을 추가합니다.
+``` rb
+@random_post = Post.where.not(id: @post).order("RANDOM()").first
+```
